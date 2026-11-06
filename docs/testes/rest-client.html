@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mente Saudavel - Evidencias de teste da API</title>
+<style>
+    :root {
+        --ink: #17222f;
+        --muted: #5d6b7a;
+        --line: #e3e9ee;
+        --teal: #1d6b64;
+        --bg: #f5f8f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 34px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        font-size: 14px;
+    }
+    header { margin-bottom: 24px; }
+    h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.4px; }
+    header p { margin: 0; color: var(--muted); }
+    .env {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #dff1ee;
+        color: var(--teal);
+        font-size: 12.5px;
+        font-weight: 600;
+    }
+    .test {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(18, 60, 58, 0.06);
+        padding: 18px 20px;
+        margin-bottom: 16px;
+        page-break-inside: avoid;
+    }
+    .test-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+    .method {
+        padding: 4px 10px;
+        border-radius: 7px;
+        color: #fff;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+    }
+    .get { background: #1d6b64; }
+    .post { background: #b7791f; }
+    .url {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12.5px;
+        color: #334155;
+        word-break: break-all;
+    }
+    .status {
+        margin-left: auto;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .ok { background: #dff3e6; color: #1f7a44; }
+    .fail { background: #fbe4e8; color: #b0475b; }
+    .label {
+        margin: 12px 0 6px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+    pre {
+        margin: 0;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.55;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    .meta { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+    <h1>Mente Saudavel - Evidencias de teste da API</h1>
+    <p>Execucao real dos endpoints da Web API (Flask + PostgreSQL). Cada cartao mostra a requisicao e a resposta devolvida.</p>
+    <span class="env" id="env">API: ...</span>
+</header>
+
+<main id="results">
+    <p class="meta">Executando testes...</p>
+</main>
+
+<script>
+const API = new URLSearchParams(location.search).get("api") || "http://localhost:5000";
+document.getElementById("env").textContent = `API: ${API}`;
+
+const results = document.getElementById("results");
+results.innerHTML = "";
+
+function esc(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+}
+
+function cpfValido() {
+    const digits = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10));
+    for (const position of [9, 10]) {
+        const total = digits
+            .slice(0, position)
+            .reduce((sum, digit, index) => sum + digit * (position + 1 - index), 0);
+        const check = (total * 10) % 11;
+        digits.push(check === 10 ? 0 : check);
+    }
+    return digits.join("");
+}
+
+async function runTest({ title, method, path, body }) {
+    const started = performance.now();
+    let status = 0;
+    let payload;
+    let ok = false;
+
+    try {
+        const response = await fetch(`${API}${path}`, {
+            method,
+            headers: body ? { "Content-Type": "application/json" } : {},
+            body: body ? JSON.stringify(body) : undefined,
+        });
+        status = response.status;
+        ok = response.ok;
+        payload = await response.json();
+    } catch (error) {
+        payload = { erro: true, mensagem: error.message };
+    }
+
+    const elapsed = Math.round(performance.now() - started);
+    const card = document.createElement("article");
+    card.className = "test";
+    card.innerHTML = `
+        <div class="test-head">
+            <span class="method ${method.toLowerCase()}">${method}</span>
+            <span class="url">${esc(API + path)}</span>
+            <span class="status ${ok ? "ok" : "fail"}">${status || "ERRO"} - ${elapsed} ms</span>
+        </div>
+        <div class="label">${esc(title)}</div>
+        ${body ? `<div class="label">Corpo enviado</div><pre>${esc(JSON.stringify(body, null, 2))}</pre>` : ""}
+        <div class="label">Resposta</div>
+        <pre>${esc(JSON.stringify(payload, null, 2))}</pre>
+    `;
+    results.appendChild(card);
+    return payload;
+}
+
+(async () => {
+    await runTest({ title: "1. Verificacao de saude da API", method: "GET", path: "/api/health" });
+
+    const cpf = cpfValido();
+    const patient = await runTest({
+        title: "2. Cadastro de paciente (stored procedure sp_criar_paciente)",
+        method: "POST",
+        path: "/api/pacientes",
+        body: {
+            nome: "Paciente Demonstracao",
+            cpf,
+            email: `demonstracao.${cpf}@email.com`,
+            telefone: "(69) 99999-2026",
+            data_nascimento: "1996-09-14",
+            genero: "nao_informado",
+            cidade: "Porto Velho",
+            observacoes: "Registro criado pela pagina de evidencias de teste.",
+        },
+    });
+
+    await runTest({
+        title: "3. Listagem paginada de pacientes",
+        method: "GET",
+        path: "/api/pacientes?page=1&per_page=2",
+    });
+
+    const patientId = patient?.dados?.id_paciente;
+    if (patientId) {
+        const day = 10 + Math.floor(Math.random() * 18);
+        const hour = 8 + Math.floor(Math.random() * 9);
+        const seconds = Math.floor(Math.random() * 60);
+        await runTest({
+            title: "4. Agendamento de consulta (stored procedure sp_agendar_consulta)",
+            method: "POST",
+            path: "/api/consultas",
+            body: {
+                id_paciente: patientId,
+                id_psicologo: 1,
+                data_hora: `2026-12-${String(day).padStart(2, "0")}T${String(hour).padStart(2, "0")}:00:${String(seconds).padStart(2, "0")}`,
+                duracao_minutos: 50,
+                modalidade: "online",
+                observacoes: "Consulta criada pela pagina de evidencias de teste.",
+            },
+        });
+
+        await runTest({
+            title: "5. Resumo individual do paciente",
+            method: "GET",
+            path: `/api/pacientes/${patientId}/resumo`,
+        });
+    }
+
+    await runTest({
+        title: "6. Relatorio de atendimentos por periodo (view + JOIN)",
+        method: "GET",
+        path: "/api/relatorios/atendimentos?data_inicio=2026-11-01&data_fim=2026-12-31",
+    });
+})();
+</script>
+</body>
+</html>

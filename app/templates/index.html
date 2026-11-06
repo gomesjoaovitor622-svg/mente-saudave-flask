@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mente Saudavel | Gestao da clinica</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-icon">🌿</span>
+                <div>
+                    <strong>Mente Saudavel</strong>
+                    <small>Clinica de Psicologia</small>
+                </div>
+            </div>
+
+            <nav class="nav" aria-label="Menu principal">
+                <button class="nav-item active" data-view="dashboard">
+                    <span>📊</span> Painel
+                </button>
+                <button class="nav-item" data-view="pacientes">
+                    <span>🧑‍🤝‍🧑</span> Pacientes
+                </button>
+                <button class="nav-item" data-view="agenda">
+                    <span>🗓️</span> Agenda
+                </button>
+                <button class="nav-item" data-view="psicologos">
+                    <span>👩‍⚕️</span> Psicologos
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>Desenvolvimento Web III<br>Banco de Dados II</p>
+                <span class="badge">Flask + PostgreSQL</span>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h1 id="page-title">Painel geral</h1>
+                    <p id="page-subtitle">Visao rapida da clinica e dos atendimentos.</p>
+                </div>
+                <button class="btn btn-ghost" id="refresh-btn" title="Recarregar dados">↻ Atualizar</button>
+            </header>
+
+            <!-- ============================ DASHBOARD ============================ -->
+            <section id="view-dashboard" class="view active">
+                <div class="cards">
+                    <article class="card stat">
+                        <span class="stat-icon teal">🧑‍🤝‍🧑</span>
+                        <div>
+                            <small>Pacientes ativos</small>
+                            <strong id="stat-pacientes">--</strong>
+                        </div>
+                    </article>
+                    <article class="card stat">
+                        <span class="stat-icon lilac">👩‍⚕️</span>
+                        <div>
+                            <small>Psicologos ativos</small>
+                            <strong id="stat-psicologos">--</strong>
+                        </div>
+                    </article>
+                    <article class="card stat">
+                        <span class="stat-icon amber">🗓️</span>
+                        <div>
+                            <small>Consultas agendadas</small>
+                            <strong id="stat-agendadas">--</strong>
+                        </div>
+                    </article>
+                    <article class="card stat">
+                        <span class="stat-icon rose">💚</span>
+                        <div>
+                            <small>Humor medio</small>
+                            <strong id="stat-humor">--</strong>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="grid-2">
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Proximas consultas</h2>
+                            <button class="link" data-goto="agenda">Ver agenda</button>
+                        </div>
+                        <div id="proximas-consultas" class="list">
+                            <p class="empty">Carregando...</p>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <div class="card-head">
+                            <h2>Consultas por especialidade</h2>
+                        </div>
+                        <div id="especialidades" class="list">
+                            <p class="empty">Carregando...</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ============================ PACIENTES ============================ -->
+            <section id="view-pacientes" class="view">
+                <div class="toolbar">
+                    <input type="search" id="busca-paciente" placeholder="Buscar paciente por nome..." aria-label="Buscar paciente">
+                    <div class="toolbar-actions">
+                        <select id="filtro-status-paciente" aria-label="Filtrar por status">
+                            <option value="">Todos os status</option>
+                            <option value="ativo">Ativos</option>
+                            <option value="inativo">Inativos</option>
+                        </select>
+                        <button class="btn btn-primary" id="novo-paciente">+ Novo paciente</button>
+                    </div>
+                </div>
+
+                <div class="card table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Contato</th>
+                                <th>Cidade</th>
+                                <th>Status</th>
+                                <th class="right">Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-pacientes">
+                            <tr><td colspan="5" class="empty">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================ AGENDA ============================ -->
+            <section id="view-agenda" class="view">
+                <div class="toolbar">
+                    <select id="filtro-status-consulta" aria-label="Filtrar consultas">
+                        <option value="">Todas as consultas</option>
+                        <option value="agendada">Agendadas</option>
+                        <option value="realizada">Realizadas</option>
+                        <option value="cancelada">Canceladas</option>
+                        <option value="falta">Faltas</option>
+                    </select>
+                    <button class="btn btn-primary" id="nova-consulta">+ Nova consulta</button>
+                </div>
+
+                <div class="card table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data / hora</th>
+                                <th>Paciente</th>
+                                <th>Psicologo</th>
+                                <th>Modalidade</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th class="right">Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-consultas">
+                            <tr><td colspan="7" class="empty">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================ PSICOLOGOS ============================ -->
+            <section id="view-psicologos" class="view">
+                <div class="toolbar">
+                    <span class="muted">Profissionais cadastrados na clinica.</span>
+                    <button class="btn btn-primary" id="novo-psicologo">+ Novo psicologo</button>
+                </div>
+
+                <div class="card table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>CRP</th>
+                                <th>Especialidade</th>
+                                <th>Valor / sessao</th>
+                                <th>Status</th>
+                                <th class="right">Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-psicologos">
+                            <tr><td colspan="6" class="empty">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ============================ MODAL PACIENTE ============================ -->
+    <div class="modal" id="modal-paciente" aria-hidden="true">
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-paciente">
+            <div class="modal-head">
+                <h2 id="titulo-modal-paciente">Novo paciente</h2>
+                <button class="icon-btn" data-close="modal-paciente" aria-label="Fechar">✕</button>
+            </div>
+            <form id="form-paciente" novalidate>
+                <input type="hidden" name="id_paciente">
+                <div class="form-grid">
+                    <label class="span-2">Nome completo *
+                        <input name="nome" required minlength="3" maxlength="120" placeholder="Nome do paciente">
+                    </label>
+                    <label>CPF *
+                        <input name="cpf" required inputmode="numeric" maxlength="14" placeholder="000.000.000-00">
+                    </label>
+                    <label>Data de nascimento *
+                        <input type="date" name="data_nascimento" required>
+                    </label>
+                    <label>E-mail *
+                        <input type="email" name="email" required maxlength="160" placeholder="paciente@email.com">
+                    </label>
+                    <label>Telefone
+                        <input name="telefone" maxlength="20" placeholder="(69) 99999-0000">
+                    </label>
+                    <label>Genero
+                        <select name="genero">
+                            <option value="nao_informado">Nao informado</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="nao_binario">Nao binario</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </label>
+                    <label>Cidade
+                        <input name="cidade" maxlength="80" placeholder="Cidade">
+                    </label>
+                    <label class="span-2">Observacoes
+                        <textarea name="observacoes" rows="3" maxlength="1000" placeholder="Informacoes relevantes sobre o paciente"></textarea>
+                    </label>
+                    <label class="span-2 status-field">Status
+                        <select name="status">
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-close="modal-paciente">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar paciente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================ MODAL CONSULTA ============================ -->
+    <div class="modal" id="modal-consulta" aria-hidden="true">
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-consulta">
+            <div class="modal-head">
+                <h2 id="titulo-modal-consulta">Nova consulta</h2>
+                <button class="icon-btn" data-close="modal-consulta" aria-label="Fechar">✕</button>
+            </div>
+            <form id="form-consulta" novalidate>
+                <input type="hidden" name="id_consulta">
+                <div class="form-grid">
+                    <label class="span-2">Paciente *
+                        <select name="id_paciente" required></select>
+                    </label>
+                    <label class="span-2">Psicologo *
+                        <select name="id_psicologo" required></select>
+                    </label>
+                    <label>Data e hora *
+                        <input type="datetime-local" name="data_hora" required>
+                    </label>
+                    <label>Duracao (min)
+                        <input type="number" name="duracao_minutos" min="15" max="180" value="50">
+                    </label>
+                    <label>Modalidade
+                        <select name="modalidade">
+                            <option value="presencial">Presencial</option>
+                            <option value="online">Online</option>
+                        </select>
+                    </label>
+                    <label>Valor (R$)
+                        <input type="number" name="valor" min="0" step="0.01" placeholder="Usa o valor do psicologo">
+                    </label>
+                    <label class="span-2">Observacoes
+                        <textarea name="observacoes" rows="2" maxlength="1000"></textarea>
+                    </label>
+                    <label class="span-2 status-field">Status
+                        <select name="status">
+                            <option value="agendada">Agendada</option>
+                            <option value="realizada">Realizada</option>
+                            <option value="cancelada">Cancelada</option>
+                            <option value="falta">Falta</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-close="modal-consulta">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar consulta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================ MODAL PSICOLOGO ============================ -->
+    <div class="modal" id="modal-psicologo" aria-hidden="true">
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-psicologo">
+            <div class="modal-head">
+                <h2 id="titulo-modal-psicologo">Novo psicologo</h2>
+                <button class="icon-btn" data-close="modal-psicologo" aria-label="Fechar">✕</button>
+            </div>
+            <form id="form-psicologo" novalidate>
+                <input type="hidden" name="id_psicologo">
+                <div class="form-grid">
+                    <label class="span-2">Nome completo *
+                        <input name="nome" required minlength="3" maxlength="120">
+                    </label>
+                    <label>CRP *
+                        <input name="crp" required placeholder="06/12345" maxlength="20">
+                    </label>
+                    <label>E-mail *
+                        <input type="email" name="email" required maxlength="160">
+                    </label>
+                    <label class="span-2">Especialidade *
+                        <input name="especialidade" required maxlength="80" placeholder="Ex.: Terapia Cognitivo-Comportamental">
+                    </label>
+                    <label>Valor da sessao (R$) *
+                        <input type="number" name="valor_sessao" required min="0.01" step="0.01">
+                    </label>
+                    <label>Status
+                        <select name="ativo">
+                            <option value="true">Ativo</option>
+                            <option value="false">Inativo</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" data-close="modal-psicologo">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar psicologo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

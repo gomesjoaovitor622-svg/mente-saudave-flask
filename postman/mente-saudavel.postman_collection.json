@@ -1,0 +1,273 @@
+{
+  "info": {
+    "_postman_id": "b7f2f0c2-4f5a-4d0e-9c1a-mente-saudavel",
+    "name": "Mente Saudavel - API Flask",
+    "description": "Colecao de testes da API do projeto Mente Saudavel (Desenvolvimento Web III + Banco de Dados II).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Saude",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pacientes",
+      "item": [
+        {
+          "name": "Listar pacientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes?page=1&per_page=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar paciente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Ana Beatriz Souza\",\n  \"cpf\": \"52998224725\",\n  \"email\": \"ana.souza@email.com\",\n  \"telefone\": \"(69) 99999-1234\",\n  \"data_nascimento\": \"1994-03-18\",\n  \"genero\": \"feminino\",\n  \"cidade\": \"Porto Velho\",\n  \"observacoes\": \"Paciente encaminhada pela clinica-escola.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes"]
+            }
+          }
+        },
+        {
+          "name": "Buscar paciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Resumo do paciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/1/resumo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "1", "resumo"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar paciente",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cidade\": \"Ji-Parana\",\n  \"telefone\": \"(69) 98888-4321\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Excluir paciente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/6",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "6"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Psicologos",
+      "item": [
+        {
+          "name": "Listar psicologos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/psicologos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "psicologos"]
+            }
+          }
+        },
+        {
+          "name": "Criar psicologo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Paulo Henrique Dias\",\n  \"crp\": \"06/65432\",\n  \"email\": \"paulo.dias@mentesaudavel.com\",\n  \"especialidade\": \"Terapia Familiar\",\n  \"valor_sessao\": 190.00,\n  \"ativo\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/psicologos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "psicologos"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultas",
+      "item": [
+        {
+          "name": "Listar consultas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/consultas?status=agendada",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consultas"],
+              "query": [{ "key": "status", "value": "agendada" }]
+            }
+          }
+        },
+        {
+          "name": "Agendar consulta",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_paciente\": 1,\n  \"id_psicologo\": 1,\n  \"data_hora\": \"2026-12-02T14:00:00\",\n  \"duracao_minutos\": 50,\n  \"modalidade\": \"presencial\",\n  \"observacoes\": \"Sessao de acompanhamento.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/consultas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consultas"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar status da consulta",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"realizada\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/consultas/4",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consultas", "4"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evolucoes",
+      "item": [
+        {
+          "name": "Listar evolucoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/evolucoes?id_paciente=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "evolucoes"],
+              "query": [{ "key": "id_paciente", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Registrar evolucao",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_consulta\": 4,\n  \"humor\": 8,\n  \"relato\": \"Paciente relatou melhora no sono e na ansiedade.\",\n  \"encaminhamento\": \"Manter sessoes semanais.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/evolucoes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "evolucoes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Relatorios",
+      "item": [
+        {
+          "name": "Atendimentos por periodo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/relatorios/atendimentos?data_inicio=2026-11-01&data_fim=2026-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "relatorios", "atendimentos"],
+              "query": [
+                { "key": "data_inicio", "value": "2026-11-01" },
+                { "key": "data_fim", "value": "2026-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resumo geral",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/relatorios/resumo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "relatorios", "resumo"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
