@@ -368,13 +368,10 @@ temporários.
 
 | Integrante | Banco de Dados II | Desenvolvimento Web III | Documentação e testes |
 |------------|-------------------|-------------------------|-----------------------|
-| _(preencher)_ | Modelagem, `01_schema.sql`, CHECK/FK/UNIQUE, triggers e índices | Apoio a `app/db.py` e às chamadas de procedures | Comentários das colunas e constraints |
-| _(preencher)_ | Views com JOIN (`02_views.sql`) e funções de relatório | API Flask, blueprints, validações e erros | Tabela de endpoints e coleção Postman |
-| _(preencher)_ | Stored procedures (`03_procedures.sql`) e seed (`04_seed.sql`) | Painel web (HTML/CSS/JS) e integração via `fetch` | Capturas de tela do painel e evidências |
-| _(preencher)_ | Testes de integridade (`tests/test_constraints.py`) | Testes de API (`tests/test_api.py`) e validadores | Relatório de testes, PDF e ZIP |
+| **Jhennyfér** | Modelagem e normalização; `01_schema.sql`; CHECK/FK/UNIQUE, triggers e índices; views com JOIN (`02_views.sql`) e funções de relatório | Apoio a `app/db.py` e às chamadas de procedures; tabela de endpoints e coleção Postman | Comentários coluna a coluna, constraints e views; relatório de testes; PDF final e ZIP |
+| **João Vitor** | Stored procedures (`03_procedures.sql`) e seed (`04_seed.sql`); testes de integridade (`tests/test_constraints.py`) | API Flask, blueprints, validações e erros; painel web e integração via `fetch`; testes de API (`tests/test_api.py`) | Capturas de tela, evidências Postman e revisão do script SQL |
 
-> Substitua os nomes acima pelos integrantes da equipe antes da entrega. Cada
-> entrega deve ser revisada por pelo menos outro integrante (duplo check).
+> Cada entrega é revisada pelo outro integrante (duplo check).
 
 ---
 

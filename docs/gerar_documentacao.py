@@ -433,16 +433,12 @@ def build_pdf():
     story += [
         _p("Equipe", styles["cell_bold"]),
         Spacer(1, 0.25 * cm),
-        _p("Integrante 1: ______________________________________", styles["small"]),
+        _p("Jhennyfér", styles["small"]),
         Spacer(1, 0.35 * cm),
-        _p("Integrante 2: ______________________________________", styles["small"]),
-        Spacer(1, 0.35 * cm),
-        _p("Integrante 3: ______________________________________", styles["small"]),
-        Spacer(1, 0.35 * cm),
-        _p("Integrante 4: ______________________________________", styles["small"]),
+        _p("João Vitor", styles["small"]),
         Spacer(1, 0.9 * cm),
         _p(
-            "Substitua os nomes acima pelos integrantes da equipe antes da entrega.",
+            "Dupla responsável pelo desenvolvimento do projeto integrador.",
             styles["caption"],
         ),
         PageBreak(),
@@ -924,10 +920,9 @@ COMMIT;"""
     story.append(_p("9. Divisão de tarefas", styles["h1"]))
     story.append(
         _p(
-            "A equipe foi organizada em quatro frentes de trabalho. Cada entrega "
-            "passa por revisão de pelo menos outro integrante (duplo check), "
-            "conforme orientação da atividade. Os nomes abaixo são placeholders e "
-            "devem ser substituídos pelos integrantes reais antes da entrega.",
+            "A dupla foi organizada em duas frentes de trabalho complementares. Cada "
+            "entrega passa por revisão do outro integrante (duplo check), conforme "
+            "orientação da atividade.",
             styles["body"],
         )
     )
@@ -936,32 +931,18 @@ COMMIT;"""
             [
                 ["Integrante", "Banco de Dados II", "Desenvolvimento Web III", "Documentação e testes", "Revisão"],
                 [
-                    "(preencher)",
-                    "Modelagem, normalização, script 01_schema.sql, CHECK/FK/UNIQUE, triggers e índices",
-                    "Apoio à camada de acesso (app/db.py) e às chamadas de procedures",
-                    "Comentários coluna a coluna e explicação das constraints",
-                    "(outro integrante)",
+                    "Jhennyfér",
+                    "Modelagem e normalização; 01_schema.sql; CHECK/FK/UNIQUE, triggers e índices; views com JOIN (02_views.sql) e funções de relatório",
+                    "Apoio à camada de acesso (app/db.py) e às chamadas de procedures; tabela de endpoints e coleção do Postman",
+                    "Comentários coluna a coluna, constraints e views; relatório de testes; PDF final e ZIP",
+                    "João Vitor",
                 ],
                 [
-                    "(preencher)",
-                    "Views com JOIN (02_views.sql) e funções de relatório",
-                    "API Flask, blueprints, validações e tratamento de erros",
-                    "Tabela de endpoints e coleção do Postman",
-                    "(outro integrante)",
-                ],
-                [
-                    "(preencher)",
-                    "Stored procedures (03_procedures.sql) e dados de exemplo (04_seed.sql)",
-                    "Painel web (HTML, CSS e JavaScript) e integração via fetch",
-                    "Capturas de tela do painel e das evidências Postman",
-                    "(outro integrante)",
-                ],
-                [
-                    "(preencher)",
-                    "Testes de integridade do banco (tests/test_constraints.py)",
-                    "Testes de API (tests/test_api.py) e validadores",
-                    "Relatório de testes, PDF final e empacotamento ZIP",
-                    "(outro integrante)",
+                    "João Vitor",
+                    "Stored procedures (03_procedures.sql) e dados de exemplo (04_seed.sql); testes de integridade (tests/test_constraints.py)",
+                    "API Flask, blueprints, validações e tratamento de erros; painel web e integração via fetch; testes de API (tests/test_api.py)",
+                    "Capturas de tela, evidências Postman e revisão do script SQL",
+                    "Jhennyfér",
                 ],
             ],
             [2.4 * cm, 4.0 * cm, 3.9 * cm, 3.9 * cm, 2.4 * cm],
