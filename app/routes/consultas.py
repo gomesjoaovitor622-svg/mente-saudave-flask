@@ -1,4 +1,26 @@
-"""Agenda de consultas - criacao via stored procedure ``sp_agendar_consulta``."""
+"""
+============================================================================
+Agenda de consultas - Mente Saudavel
+============================================================================
+Rotas:
+    GET    /api/consultas             -> listagem paginada (view vw_agenda_completa)
+    GET    /api/consultas/<id>        -> detalhe
+    POST   /api/consultas             -> stored procedure sp_agendar_consulta
+    PUT    /api/consultas/<id>        -> atualizacao parcial
+    DELETE /api/consultas/<id>        -> exclusao (CASCADE na evolucao)
+
+POR QUE A LISTAGEM USA VIEW?
+----------------------------
+``vw_agenda_completa`` ja faz o JOIN de consultas + pacientes + psicologos.
+A API nao repete JOIN em cada consulta e a tela recebe os nomes prontos.
+
+POR QUE A CRIACAO USA PROCEDURE?
+--------------------------------
+A procedure valida paciente/psicologo ativos e conflito de horario de forma
+atomica no banco. Se duas requisicoes chegarem ao mesmo tempo, o indice unico
+parcial ``uq_consultas_agenda_ativa`` impede double-booking.
+============================================================================
+"""
 
 from flask import Blueprint, jsonify, request
 
@@ -19,13 +41,21 @@ from ..validators import (
 
 bp = Blueprint("consultas", __name__, url_prefix="/api/consultas")
 
+# Dominios espelhados nas CHECK constraints de consultas.
 STATUS = ["agendada", "realizada", "cancelada", "falta"]
 MODALIDADES = ["presencial", "online"]
 
+# View com JOIN: entrega nomes de paciente/psicologo sem repetir SQL nas rotas.
 SELECT_APPOINTMENT = "SELECT * FROM vw_agenda_completa"
 
 
 def _validate_payload(data: dict, partial: bool = False) -> dict:
+    """Valida e normaliza o payload de consulta.
+
+    ``partial=True`` (PUT) valida apenas os campos enviados. Os limites de
+    ``duracao_minutos`` (15 a 180) e ``status``/``modalidade`` espelham as
+    CHECK constraints do banco.
+    """
     if not partial:
         require_fields(data, ["id_paciente", "id_psicologo", "data_hora"])
 
@@ -61,6 +91,12 @@ def _validate_payload(data: dict, partial: bool = False) -> dict:
 
 @bp.get("")
 def listar_consultas():
+    """Lista consultas com paginacao e filtros.
+
+    Filtros: ``status``, ``id_paciente``, ``id_psicologo``, ``data_inicio`` e
+    ``data_fim``. O ``ORDER BY data_hora DESC`` coloca as consultas mais
+    recentes/futuras no topo da agenda.
+    """
     page, per_page = parse_pagination(request.args)
     filters, params = [], {}
 
@@ -102,6 +138,7 @@ def listar_consultas():
 
 @bp.get("/<int:consulta_id>")
 def obter_consulta(consulta_id: int):
+    """Devolve uma consulta (com nomes via view) ou 404."""
     consulta = query_one(f"{SELECT_APPOINTMENT} WHERE id_consulta = %s", (consulta_id,))
     if not consulta:
         raise ApiError("Consulta nao encontrada.", 404)
@@ -110,6 +147,15 @@ def obter_consulta(consulta_id: int):
 
 @bp.post("")
 def criar_consulta():
+    """Agenda uma consulta via ``sp_agendar_consulta``.
+
+    A procedure devolve ``p_id_consulta`` + ``p_mensagem``. Qualquer falha de
+    negocio (paciente/psicologo inativo, horario ocupado) vira HTTP 409, pois
+    representa conflito com o estado atual do banco.
+
+    ``valor`` omitido: a procedure usa ``COALESCE(p_valor, valor_sessao)`` e
+    aplica automaticamente o valor padrao do psicologo.
+    """
     values = _validate_payload(get_json_body())
 
     result = call_procedure(
@@ -147,6 +193,11 @@ def criar_consulta():
 
 @bp.put("/<int:consulta_id>")
 def atualizar_consulta(consulta_id: int):
+    """Atualiza parcialmente uma consulta (status, horario, valor etc.).
+
+    O indice unico parcial continua valendo no UPDATE: tentar mover uma
+    consulta para um horario ja ocupado do mesmo psicologo gera 409.
+    """
     values = _validate_payload(get_json_body(), partial=True)
     if not values:
         raise ApiError("Informe ao menos um campo para atualizar.", 400)
@@ -168,6 +219,7 @@ def atualizar_consulta(consulta_id: int):
 
 @bp.delete("/<int:consulta_id>")
 def remover_consulta(consulta_id: int):
+    """Exclui uma consulta; a evolucao vinculada sai por CASCADE."""
     affected = execute("DELETE FROM consultas WHERE id_consulta = %s", (consulta_id,))
     if affected == 0:
         raise ApiError("Consulta nao encontrada.", 404)

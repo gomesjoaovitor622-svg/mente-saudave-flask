@@ -350,6 +350,21 @@ def _bullets(items, styles):
     )
 
 
+def _public_url() -> str:
+    """Le a URL publica da demonstracao, se o tunel ja tiver sido iniciado.
+
+    O script que sobe o Cloudflare grava o endereco em docs/URL_PUBLICA.txt.
+    Quando o arquivo nao existe (execucao offline), devolve um placeholder
+    explicito para que a documentacao nunca exiba um link quebrado.
+    """
+    path = BASE / "URL_PUBLICA.txt"
+    if path.exists():
+        url = path.read_text(encoding="utf-8").strip()
+        if url:
+            return url
+    return "https://&lt;subdominio&gt;.trycloudflare.com (link temporario)"
+
+
 def build_pdf():
     styles = _styles()
     doc = SimpleDocTemplate(
@@ -743,9 +758,12 @@ COMMIT;"""
     story.append(_p("8. Testes e evidências", styles["h1"]))
     story.append(
         _p(
-            "Os testes foram executados no painel web, em uma página de evidências "
-            "que dispara requisições reais contra a API e na suíte automatizada "
-            "(pytest). A coleção do Postman também acompanha o repositório.",
+            "A validação do sistema foi feita em três frentes complementares: "
+            "(i) capturas do painel web; (ii) execução real dos endpoints com "
+            "evidências no estilo Postman; e (iii) suíte automatizada com pytest. "
+            "O relatório completo, com o payload, o status HTTP e o efeito no banco "
+            "de cada requisição, está em "
+            "<font name='Courier'>docs/RELATORIO_DE_TESTES.md</font>.",
             styles["body"],
         )
     )
@@ -774,86 +792,314 @@ COMMIT;"""
         max_width=16.0 * cm,
         max_height=10.5 * cm,
     )
+
+    # ------------------- 8.2 Evidencias no estilo Postman ------------------
+    story.append(PageBreak())
+    story.append(_p("8.2 Evidências dos testes da API", styles["h2"]))
+    story.append(
+        _p(
+            "As figuras a seguir reproduzem as requisições reais executadas por "
+            "<font name='Courier'>scripts/relatorio_testes.py</font> contra a API "
+            "em execução. Cada cartão mostra o método, a URL, o corpo JSON enviado, "
+            "o status HTTP e o JSON devolvido, além da verificação feita diretamente "
+            "no PostgreSQL.",
+            styles["body"],
+        )
+    )
     story += _image_block(
-        IMG_DIR / "testes-api.png",
-        "Figura 5 — Execução real dos endpoints: health check, cadastro via stored procedure, "
-        "listagem, agendamento, resumo e relatório.",
+        IMG_DIR / "postman-pacientes.png",
+        "Figura 5 — POST /api/pacientes: cadastro executado pela stored procedure "
+        "sp_criar_paciente, com retorno 201 Created e verificação do registro no banco.",
         styles,
-        max_width=13.2 * cm,
-        max_height=19.5 * cm,
+        max_width=16.5 * cm,
+        max_height=12.6 * cm,
+    )
+    story += _image_block(
+        IMG_DIR / "postman-pacientes-erro.png",
+        "Figura 6 — Tentativa de cadastrar CPF duplicado: a procedure recusa a "
+        "operação e a API responde 409 Conflict, sem inserir nova linha.",
+        styles,
+        max_width=16.5 * cm,
+        max_height=10.4 * cm,
     )
 
     story.append(PageBreak())
     story += _image_block(
-        IMG_DIR / "api-pacientes.png",
-        "Figura 6 — Resposta JSON da listagem paginada de pacientes.",
+        IMG_DIR / "postman-consultas.png",
+        "Figura 7 — POST /api/consultas: agendamento executado pela stored procedure "
+        "sp_agendar_consulta, com retorno 201 Created.",
         styles,
-        max_width=16.0 * cm,
-        max_height=9.0 * cm,
+        max_width=16.5 * cm,
+        max_height=12.6 * cm,
     )
+    story += _image_block(
+        IMG_DIR / "postman-consultas-erro.png",
+        "Figura 8 — Tentativa de double-booking: o índice único parcial e a procedure "
+        "bloqueiam o segundo agendamento ativo no mesmo horário (409 Conflict).",
+        styles,
+        max_width=16.5 * cm,
+        max_height=10.4 * cm,
+    )
+
+    story.append(PageBreak())
+    story += _image_block(
+        IMG_DIR / "postman-evolucoes.png",
+        "Figura 9 — POST /api/evolucoes: registro do prontuário pela stored procedure "
+        "sp_registrar_evolucao, garantindo uma evolução por consulta.",
+        styles,
+        max_width=16.5 * cm,
+        max_height=12.6 * cm,
+    )
+    story += _image_block(
+        IMG_DIR / "postman-constraints.png",
+        "Figura 10 — Oito CHECK constraints testadas por SQL direto: o PostgreSQL "
+        "rejeita todos os dados inválidos, mesmo sem passar pela API.",
+        styles,
+        max_width=16.5 * cm,
+        max_height=10.4 * cm,
+    )
+
+    story.append(PageBreak())
+    story += _image_block(
+        IMG_DIR / "postman-listagem.png",
+        "Figura 11 — GET /api/pacientes com filtro por nome: listagem paginada com "
+        "metadados de paginação retornados pela API.",
+        styles,
+        max_width=16.5 * cm,
+        max_height=13.5 * cm,
+    )
+
+    # --------------------- 8.3 Testes automatizados -----------------------
+    story.append(_p("8.3 Testes automatizados", styles["h2"]))
     story.append(
         _p(
-            "Suíte automatizada: <font name='Courier'>pytest -q</font> — 23 testes "
-            "aprovados, cobrindo validações de CPF, e-mail, datas, paginação e o fluxo "
-            "completo de cadastro, consulta, evolução e relatório.",
+            "A suíte automatizada reúne <b>55 testes</b> distribuídos em "
+            "<font name='Courier'>tests/test_validators.py</font> (validações "
+            "unitárias), <font name='Courier'>tests/test_api.py</font> (integração "
+            "dos endpoints) e <font name='Courier'>tests/test_constraints.py</font> "
+            "(integridade do banco: CHECK, UNIQUE, FK, CASCADE, índice parcial, "
+            "triggers, procedures, views e funções).",
             styles["body"],
+        )
+    )
+    story.append(
+        XPreformatted(
+            "$ pytest -q\n"
+            ".......................................................  [100%]\n"
+            "55 passed in 8.50s",
+            ParagraphStyle(
+                "Code3",
+                fontName="Courier",
+                fontSize=8,
+                leading=11,
+                textColor=colors.HexColor("#334155"),
+                backColor=colors.HexColor("#f8fafc"),
+                borderColor=LINE,
+                borderWidth=0.5,
+                borderPadding=7,
+                spaceAfter=10,
+            ),
+        )
+    )
+
+    # ---------------------- 8.4 Resumo dos resultados ---------------------
+    story.append(_p("8.4 Resumo dos resultados", styles["h2"]))
+    story.append(
+        _table(
+            [
+                ["Verificação", "Resultado"],
+                ["Testes HTTP executados contra a API real", "22 de 22 com o status esperado"],
+                ["CHECK constraints testadas por SQL direto", "8 de 8 rejeitaram o dado inválido"],
+                ["Suíte automatizada (pytest)", "55 testes aprovados"],
+                ["Cobertura funcional", "CRUD, listagens, stored procedures, views e relatórios"],
+                ["Efeito no banco", "Conferido por consulta direta após cada operação"],
+            ],
+            [9.0 * cm, 7.6 * cm],
+            styles,
         )
     )
 
     # -------------------------- 9. Divisao de tarefas ----------------------
+    story.append(PageBreak())
     story.append(_p("9. Divisão de tarefas", styles["h1"]))
     story.append(
         _p(
-            "Cada entrega deve ser revisada por pelo menos outro integrante (duplo "
-            "check), conforme orientação da atividade.",
+            "A equipe foi organizada em quatro frentes de trabalho. Cada entrega "
+            "passa por revisão de pelo menos outro integrante (duplo check), "
+            "conforme orientação da atividade. Os nomes abaixo são placeholders e "
+            "devem ser substituídos pelos integrantes reais antes da entrega.",
             styles["body"],
         )
     )
     story.append(
         _table(
             [
-                ["Integrante", "Desenvolvimento", "Documentação", "Revisão"],
-                ["(preencher)", "Banco de dados, procedures e views", "Script SQL comentado", "(outro integrante)"],
-                ["(preencher)", "API Flask e validações", "Endpoints e testes", "(outro integrante)"],
-                ["(preencher)", "Frontend e integração", "Capturas de tela", "(outro integrante)"],
-                ["(preencher)", "Testes e relatórios", "Documento final", "(outro integrante)"],
+                ["Integrante", "Banco de Dados II", "Desenvolvimento Web III", "Documentação e testes", "Revisão"],
+                [
+                    "(preencher)",
+                    "Modelagem, normalização, script 01_schema.sql, CHECK/FK/UNIQUE, triggers e índices",
+                    "Apoio à camada de acesso (app/db.py) e às chamadas de procedures",
+                    "Comentários coluna a coluna e explicação das constraints",
+                    "(outro integrante)",
+                ],
+                [
+                    "(preencher)",
+                    "Views com JOIN (02_views.sql) e funções de relatório",
+                    "API Flask, blueprints, validações e tratamento de erros",
+                    "Tabela de endpoints e coleção do Postman",
+                    "(outro integrante)",
+                ],
+                [
+                    "(preencher)",
+                    "Stored procedures (03_procedures.sql) e dados de exemplo (04_seed.sql)",
+                    "Painel web (HTML, CSS e JavaScript) e integração via fetch",
+                    "Capturas de tela do painel e das evidências Postman",
+                    "(outro integrante)",
+                ],
+                [
+                    "(preencher)",
+                    "Testes de integridade do banco (tests/test_constraints.py)",
+                    "Testes de API (tests/test_api.py) e validadores",
+                    "Relatório de testes, PDF final e empacotamento ZIP",
+                    "(outro integrante)",
+                ],
             ],
-            [3.1 * cm, 5.2 * cm, 4.4 * cm, 3.9 * cm],
+            [2.4 * cm, 4.0 * cm, 3.9 * cm, 3.9 * cm, 2.4 * cm],
             styles,
         )
     )
     story.append(Spacer(1, 0.3 * cm))
 
     # ---------------------------- 10. Execucao ----------------------------
-    story.append(_p("10. Como executar", styles["h1"]))
+    story.append(_p("10. Como executar e link de acesso", styles["h1"]))
     story.append(
         _bullets(
             [
                 "Criar o banco e executar os scripts na ordem 00, 01, 02, 03 e 04 da pasta <font name='Courier'>database/</font>.",
                 "Copiar <font name='Courier'>.env.example</font> para <font name='Courier'>.env</font> e configurar usuário e senha do PostgreSQL.",
                 "Criar o ambiente virtual e instalar as dependências de <font name='Courier'>requirements.txt</font>.",
-                "Executar <font name='Courier'>python run.py</font> e acessar <font name='Courier'>http://localhost:5000</font>.",
+                "Executar <font name='Courier'>python app.py</font> e acessar <font name='Courier'>http://localhost:5000</font>.",
             ],
             styles,
         )
     )
     story.append(
         _p(
+            "O arquivo <font name='Courier'>app.py</font> é o ponto de entrada oficial; "
+            "<font name='Courier'>run.py</font> existe apenas por compatibilidade. "
             "As instruções completas, incluindo testes e Postman, estão no "
             "<font name='Courier'>README.md</font> do repositório.",
             styles["body"],
         )
     )
+    story.append(
+        _table(
+            [
+                ["Ambiente", "Endereço"],
+                ["Local (desenvolvimento)", "http://localhost:5000"],
+                ["API / health check", "http://localhost:5000/api/health"],
+                ["Demonstração pública", _public_url()],
+            ],
+            [5.2 * cm, 11.4 * cm],
+            styles,
+        )
+    )
+    story.append(
+        _p(
+            "O link público é temporário: ele permanece ativo enquanto o servidor "
+            "Flask, o PostgreSQL e o túnel Cloudflare estiverem em execução na "
+            "máquina de demonstração.",
+            styles["caption"],
+        )
+    )
 
-    # ------------------------ 11. Consideracoes finais --------------------
-    story.append(_p("11. Considerações finais", styles["h1"]))
+    # --------------------- 11. Empacotamento e entrega ---------------------
+    story.append(PageBreak())
+    story.append(_p("11. Empacotamento e entrega (ZIP)", styles["h1"]))
+    story.append(
+        _p(
+            "A entrega deve ser um único arquivo ZIP contendo o script SQL completo, "
+            "o código-fonte organizado e o PDF de documentação. O nome do arquivo "
+            "segue a regra da atividade:",
+            styles["body"],
+        )
+    )
+    story.append(
+        XPreformatted(
+            "[nome inicial de cada membro separado por _].[nome do sistema].zip",
+            ParagraphStyle(
+                "Code4",
+                fontName="Courier-Bold",
+                fontSize=9,
+                leading=12,
+                textColor=TEAL_DARK,
+                backColor=TEAL_LIGHT,
+                borderColor=TEAL,
+                borderWidth=0.6,
+                borderPadding=8,
+                spaceAfter=8,
+            ),
+        )
+    )
+    story.append(
+        _p(
+            "Exemplo com quatro integrantes (João, Maria, Pedro e Ana): "
+            "<font name='Courier'>Joao_Maria_Pedro_Ana.Mente_Saudavel.zip</font>. "
+            "O script <font name='Courier'>scripts/gerar_zip.py</font> monta o pacote "
+            "automaticamente e valida o nome:",
+            styles["body"],
+        )
+    )
+    story.append(
+        XPreformatted(
+            "python scripts/gerar_zip.py --membros \"Joao Maria Pedro Ana\"\n"
+            "# gera: Joao_Maria_Pedro_Ana.Mente_Saudavel.zip",
+            ParagraphStyle(
+                "Code5",
+                fontName="Courier",
+                fontSize=7.6,
+                leading=10.5,
+                textColor=colors.HexColor("#334155"),
+                backColor=colors.HexColor("#f8fafc"),
+                borderColor=LINE,
+                borderWidth=0.5,
+                borderPadding=6,
+                spaceAfter=10,
+            ),
+        )
+    )
+    story.append(
+        _table(
+            [
+                ["Incluir no ZIP", "Excluir do ZIP"],
+                [
+                    "app/, database/, docs/, postman/, scripts/, tests/",
+                    ".venv/, .git/, __pycache__/, .pytest_cache/",
+                ],
+                [
+                    "app.py, run.py, requirements.txt, requirements-dev.txt",
+                    ".env (contém senhas), *.pyc, arquivos temporários",
+                ],
+                [
+                    ".env.example, README.md, .gitignore",
+                    "Bancos de dados locais e capturas não utilizadas",
+                ],
+            ],
+            [8.3 * cm, 8.3 * cm],
+            styles,
+        )
+    )
+
+    # ------------------------ 12. Consideracoes finais --------------------
+    story.append(_p("12. Considerações finais", styles["h1"]))
     story.append(
         _p(
             "O projeto aplica, de forma integrada, os conteúdos das duas disciplinas: "
             "a API Flask fornece endpoints REST com validações e respostas JSON, "
             "enquanto o PostgreSQL garante a integridade dos dados por meio de chaves, "
             "restrições, procedures, views e triggers. A separação em camadas facilita "
-            "a manutenção e a evolução do sistema.",
+            "a manutenção e a evolução do sistema, e as evidências de teste comprovam "
+            "o funcionamento de todas as operações exigidas.",
             styles["body"],
         )
     )

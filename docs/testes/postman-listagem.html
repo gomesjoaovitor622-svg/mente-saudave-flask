@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Testes - Listagem paginada</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f4f6f8; color: #1f2937;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; font-size: 17px;
+  }
+  .topbar {
+    display: flex; align-items: center; gap: 16px; height: 52px; padding: 0 20px;
+    background: #171717; color: #f5f5f5;
+  }
+  .brand { font-weight: 700; letter-spacing: .3px; font-size: 16px; }
+  .brand span { color: #ff6c37; }
+  .env {
+    margin-left: 8px; padding: 5px 10px; border-radius: 6px; background: #2b2b2b;
+    color: #d4d4d4; font-size: 13px;
+  }
+  .layout { display: flex; min-height: calc(100vh - 46px); }
+  .sidebar {
+    width: 210px; flex: 0 0 210px; background: #fbfbfb; border-right: 1px solid #e5e7eb;
+    padding: 16px 14px;
+  }
+  .sidebar h3 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #8a94a6; }
+  .tree { list-style: none; margin: 0 0 18px; padding: 0; }
+  .tree li { padding: 7px 8px; border-radius: 6px; color: #445; margin-bottom: 2px; font-size: 15px; }
+  .tree li.active { background: #ffece5; color: #b8431f; font-weight: 600; }
+  .tree li::before { content: "▸"; color: #b8c0cc; margin-right: 6px; font-size: 10px; }
+  .main { flex: 1; padding: 20px 24px 30px; }
+  .page-title { margin: 0 0 4px; font-size: 24px; }
+  .page-sub { margin: 0 0 18px; color: #6b7280; font-size: 15px; }
+  .request {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, .04); margin-bottom: 16px; overflow: hidden;
+  }
+  .request-head {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid #eef1f4; background: #fcfcfd;
+  }
+  .method {
+    color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .5px;
+    padding: 4px 8px; border-radius: 5px; min-width: 48px; text-align: center;
+  }
+  .url {
+    flex: 1; font-family: Consolas, "Courier New", monospace; font-size: 15px;
+    color: #374151; background: #f6f7f9; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 7px 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .send {
+    background: #ff6c37; color: #fff; font-weight: 700; font-size: 13px;
+    padding: 7px 18px; border-radius: 6px;
+  }
+  .request-title { padding: 10px 14px 0; font-weight: 600; color: #374151; font-size: 17px; }
+  .section-label {
+    margin: 10px 14px 4px; font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: .7px; color: #8a94a6; font-weight: 700; font-size: 11px;
+  }
+  .code {
+    margin: 0 14px 12px; padding: 12px 14px; border-radius: 8px; background: #f8fafc;
+    border: 1px solid #eef1f4; font-family: Consolas, "Courier New", monospace;
+    font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+    color: #1f2937;
+  }
+  .response-head {
+    display: flex; align-items: center; gap: 12px; padding: 8px 14px;
+    border-top: 1px solid #eef1f4; border-bottom: 1px solid #eef1f4; background: #fbfcfd;
+  }
+  .response-title { font-weight: 700; color: #374151; font-size: 14px; }
+  .status {
+    font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+  }
+  .status.ok { background: #dff3e6; color: #1f7a44; }
+  .status.warn { background: #fff0d6; color: #9a6208; }
+  .status.err { background: #fbe4e8; color: #b0475b; }
+  .meta { margin-left: auto; color: #8a94a6; font-size: 13.5px; }
+  .db-check {
+    margin: 0 14px 14px; padding: 9px 12px; border-radius: 7px; background: #eef7f4;
+    border: 1px solid #cfe8e0; color: #1d6b64; font-size: 15px;
+  }
+  .db-check span {
+    display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .6px;
+    text-transform: uppercase; margin-right: 8px; color: #2f8b7c;
+  }
+  .constraints { width: calc(100% - 28px); margin: 12px 14px 16px; border-collapse: collapse; }
+  .constraints th, .constraints td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #eef1f4; font-size: 15px; }
+  .constraints th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; color: #8a94a6; }
+  .mono { font-family: Consolas, "Courier New", monospace; font-size: 11.5px; }
+  .footer { margin-top: 6px; color: #8a94a6; font-size: 13.5px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Mente Saudavel <span>API</span></div>
+    <div class="env">Environment: Local &middot; PostgreSQL 18</div>
+  </div>
+  <div class="layout">
+    <aside class="sidebar">
+      <h3>Collections</h3>
+      <ul class="tree">
+        <li>Health check</li>
+        <li class="active">Pacientes</li>
+        <li class="">Consultas</li>
+        <li class="">Evolucoes</li>
+        <li class="">Relatorios</li>
+        <li class="">Constraints (SQL)</li>
+      </ul>
+      <h3>Environment</h3>
+      <ul class="tree">
+        <li>base_url</li>
+        <li>db_host: 127.0.0.1</li>
+        <li>db_port: 55432</li>
+        <li>db_name: mente_saudavel</li>
+      </ul>
+    </aside>
+    <main class="main">
+      <h1 class="page-title">Testes - Listagem paginada</h1>
+      <p class="page-sub">GET /api/pacientes com filtro por nome e metadados de paginacao.</p>
+      
+    <article class="request">
+      <div class="request-head">
+        <span class="method" style="background:#2f9e6f">GET</span>
+        <span class="url">http://127.0.0.1:5055/api/pacientes?nome=Paciente Relatorio</span>
+        <span class="send">Send</span>
+      </div>
+      <div class="request-title">Listar pacientes com filtro por nome</div>
+      
+      <div class="response-head">
+        <span class="response-title">Response</span>
+        <span class="status ok">200 OK</span>
+        <span class="meta">Time: 12 ms &middot; Size: 896 B</span>
+      </div>
+      <pre class="code response-code">{
+  &quot;dados&quot;: [
+    {
+      &quot;id_paciente&quot;: 6,
+      &quot;nome&quot;: &quot;Paciente Relatorio de Testes&quot;,
+      &quot;cpf&quot;: &quot;19420195724&quot;,
+      &quot;email&quot;: &quot;relatorio.19420195724@email.com&quot;,
+      &quot;telefone&quot;: &quot;(69) 99999-4242&quot;,
+      &quot;data_nascimento&quot;: &quot;1994-03-18&quot;,
+      &quot;genero&quot;: &quot;nao_informado&quot;,
+      &quot;cidade&quot;: &quot;Porto Velho&quot;,
+      &quot;observacoes&quot;: &quot;Registro criado pelo script de relatorio de testes.&quot;,
+      &quot;status&quot;: &quot;ativo&quot;,
+      &quot;criado_em&quot;: &quot;2026-11-07T22:36:49.273511-04:00&quot;,
+      &quot;atualizado_em&quot;: null
+    },
+    {
+      &quot;id_paciente&quot;: 11,
+      &quot;nome&quot;: &quot;Paciente Relatorio de Testes&quot;,
+      &quot;cpf&quot;: &quot;55529237070&quot;,
+      &quot;email&quot;: &quot;relatorio.55529237070@email.com&quot;,
+      &quot;telefone&quot;: &quot;(69) 99999-4242&quot;,
+      &quot;data_nascimento&quot;: &quot;1994-03-18&quot;,
+      &quot;genero&quot;: &quot;nao_informado&quot;,
+      &quot;cidade&quot;: &quot;Porto Velho&quot;,
+      &quot;observacoes&quot;: &quot;Registro criado pelo script de relatorio de testes.&quot;,
+      &quot;status&quot;: &quot;ativo&quot;,
+      &quot;criado_em&quot;: &quot;2026-11-08T20:45:45.548994-04:00&quot;,
+      &quot;atualizado_em&quot;: null
+    }
+  ],
+  &quot;paginacao&quot;: {
+    &quot;pagina&quot;: 1,
+    &quot;por_pagina&quot;: 10,
+    &quot;total&quot;: 2,
+    &quot;total_paginas&quot;: 1
+  }
+}</pre>
+      <div class="db-check"><span>Banco</span> encontrados no banco: 2</div>
+    </article>
+    
+      <p class="footer">Evidencia gerada automaticamente por scripts/relatorio_testes.py &middot; IFRO 2026</p>
+    </main>
+  </div>
+</body>
+</html>

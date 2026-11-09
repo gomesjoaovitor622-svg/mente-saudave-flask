@@ -22,7 +22,8 @@ validação em todas as camadas.
 - **Evoluções** — registro do prontuário (humor de 1 a 10 e relato da sessão).
 - **Relatórios** — atendimentos por período e indicadores gerais da clínica.
 - **Painel web** — dashboard, tabelas e formulários consumindo a API via `fetch`.
-- **Documentação** — [`docs/Documentacao_Mente_Saudavel.pdf`](docs/Documentacao_Mente_Saudavel.pdf)
+- **Documentação** — [`docs/Documentacao_Mente_Saudavel.pdf`](docs/Documentacao_Mente_Saudavel.pdf),
+  relatório de testes em [`docs/RELATORIO_DE_TESTES.md`](docs/RELATORIO_DE_TESTES.md)
   e coleção do Postman em [`postman/`](postman/).
 
 ---
@@ -46,7 +47,7 @@ validação em todas as camadas.
 ```text
 mente-saudave-flask/
 ├── app/
-│   ├── __init__.py          # factory da aplicação Flask
+│   ├── __init__.py          # factory da aplicação Flask (CORS, JSON, erros)
 │   ├── config.py            # configurações centralizadas (.env)
 │   ├── db.py                # conexão e helpers de acesso ao PostgreSQL
 │   ├── errors.py            # tratamento de erros em JSON
@@ -71,19 +72,26 @@ mente-saudave-flask/
 │   └── README.md
 ├── docs/
 │   ├── Documentacao_Mente_Saudavel.pdf
+│   ├── RELATORIO_DE_TESTES.md
 │   ├── documentacao.md
-│   ├── arquitetura.png
-│   └── gerar_documentacao.py
+│   ├── gerar_documentacao.py
+│   ├── img/                 # capturas do painel e evidências Postman
+│   └── testes/              # harness HTTP, JSON de resultados e HTML estilo Postman
 ├── postman/
 │   └── mente-saudavel.postman_collection.json
+├── scripts/
+│   ├── relatorio_testes.py  # bateria HTTP + CHECK constraints com evidências
+│   └── gerar_zip.py         # empacotamento da entrega
 ├── tests/
 │   ├── conftest.py
 │   ├── test_validators.py
-│   └── test_api.py
+│   ├── test_api.py
+│   └── test_constraints.py  # integridade do banco (CHECK, FK, UNIQUE, triggers...)
 ├── .env.example
 ├── requirements.txt
 ├── requirements-dev.txt
-└── run.py
+├── app.py                   # ponto de entrada oficial
+└── run.py                   # compatibilidade (delega para app.py)
 ```
 
 ---
@@ -142,12 +150,27 @@ psql -U postgres -d mente_saudavel -f database/04_seed.sql
 ### 5. Iniciar a aplicação
 
 ```bash
-python run.py
+python app.py
 ```
 
 - Painel web: <http://localhost:5000>
 - API: <http://localhost:5000/api>
 - Health check: <http://localhost:5000/api/health>
+
+> `app.py` é o ponto de entrada oficial. `run.py` continua funcionando por
+> compatibilidade e delega para o mesmo código.
+
+### 6. Demonstração pública (temporária)
+
+Enquanto o servidor Flask, o PostgreSQL e o túnel Cloudflare estiverem em
+execução na máquina de demonstração, o sistema pode ser acessado em:
+
+**<https://strategic-beam-kirk-mostly.trycloudflare.com>**
+
+O endereço também é gravado em [`docs/URL_PUBLICA.txt`](docs/URL_PUBLICA.txt)
+e usado na geração do PDF. Como é um túnel gratuito `trycloudflare.com`, ele
+não possui garantia de disponibilidade e deixa de responder quando os
+processos são encerrados.
 
 ---
 
@@ -248,23 +271,54 @@ Resposta `201 Created`:
 
 ## ✅ Testes
 
+A suíte possui **55 testes** e cobre validações unitárias, integração dos
+endpoints e integridade do banco de dados.
+
 Testes unitários (não precisam de banco):
 
 ```bash
 pytest tests/test_validators.py -q
 ```
 
-Teste de integração (usa um banco de teste):
+Testes de integração e de integridade (usam um banco de teste):
 
 ```bash
 # 1. crie o banco mente_saudavel_test e execute os scripts 01 a 04 nele
-# 2. defina a variável e rode:
+# 2. defina as variáveis e rode:
 set RUN_DB_TESTS=1
 set TEST_DB_NAME=mente_saudavel_test
 pytest -q
 ```
 
-No Linux/macOS: `RUN_DB_TESTS=1 TEST_DB_NAME=mente_saudavel_test pytest -q`.
+No Linux/macOS:
+
+```bash
+RUN_DB_TESTS=1 TEST_DB_NAME=mente_saudavel_test pytest -q
+```
+
+Resultado esperado:
+
+```text
+55 passed
+```
+
+### Evidências dos testes
+
+O script `scripts/relatorio_testes.py` executa a API real e grava evidências
+com payload, status HTTP e verificação no banco:
+
+```bash
+python scripts/relatorio_testes.py --base-url http://127.0.0.1:5000
+```
+
+Ele gera:
+
+- [`docs/RELATORIO_DE_TESTES.md`](docs/RELATORIO_DE_TESTES.md) — relatório detalhado;
+- [`docs/testes/resultado_testes.json`](docs/testes/resultado_testes.json) — evidência legível por máquina;
+- páginas HTML no estilo Postman em [`docs/testes/`](docs/testes/).
+
+Resultado da última execução: **22/22 testes HTTP** com o status esperado e
+**8/8 CHECK constraints** rejeitando dados inválidos por SQL direto.
 
 ---
 
@@ -275,18 +329,52 @@ Importe `postman/mente-saudavel.postman_collection.json` no Postman. A variável
 todas as operações e pode ser usada para gerar as capturas de tela exigidas na
 documentação.
 
+As capturas usadas no PDF são geradas a partir das execuções reais:
+
+```bash
+python docs/testes/gerar_postman_html.py
+```
+
+---
+
+## 📦 Empacotamento e entrega (ZIP)
+
+A entrega é um único arquivo ZIP com o script SQL, o código-fonte e o PDF. O
+nome segue a regra da atividade:
+
+```text
+[nome inicial de cada membro separado por _].[nome do sistema].zip
+```
+
+Exemplo com quatro integrantes (João, Maria, Pedro e Ana):
+
+```text
+Joao_Maria_Pedro_Ana.Mente_Saudavel.zip
+```
+
+Gere o pacote automaticamente com:
+
+```bash
+python scripts/gerar_zip.py --membros "Joao Maria Pedro Ana"
+```
+
+O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`
+e os arquivos da raiz, ignorando `.venv/`, `.git/`, caches, `.env` e arquivos
+temporários.
+
 ---
 
 ## 👥 Equipe
 
-| Integrante | Responsabilidade principal |
-|------------|----------------------------|
-| _(preencher)_ | Banco de dados e stored procedures |
-| _(preencher)_ | API Flask e validações |
-| _(preencher)_ | Frontend e integração |
-| _(preencher)_ | Documentação e testes |
+| Integrante | Banco de Dados II | Desenvolvimento Web III | Documentação e testes |
+|------------|-------------------|-------------------------|-----------------------|
+| _(preencher)_ | Modelagem, `01_schema.sql`, CHECK/FK/UNIQUE, triggers e índices | Apoio a `app/db.py` e às chamadas de procedures | Comentários das colunas e constraints |
+| _(preencher)_ | Views com JOIN (`02_views.sql`) e funções de relatório | API Flask, blueprints, validações e erros | Tabela de endpoints e coleção Postman |
+| _(preencher)_ | Stored procedures (`03_procedures.sql`) e seed (`04_seed.sql`) | Painel web (HTML/CSS/JS) e integração via `fetch` | Capturas de tela do painel e evidências |
+| _(preencher)_ | Testes de integridade (`tests/test_constraints.py`) | Testes de API (`tests/test_api.py`) e validadores | Relatório de testes, PDF e ZIP |
 
-> Substitua os nomes acima pelos integrantes da equipe antes da entrega.
+> Substitua os nomes acima pelos integrantes da equipe antes da entrega. Cada
+> entrega deve ser revisada por pelo menos outro integrante (duplo check).
 
 ---
 

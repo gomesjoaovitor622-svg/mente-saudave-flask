@@ -1,4 +1,22 @@
-"""Evolucoes do prontuario - criacao via ``sp_registrar_evolucao``."""
+"""
+============================================================================
+Evolucoes do prontuario - Mente Saudavel
+============================================================================
+Rotas:
+    GET    /api/evolucoes             -> listagem (view vw_evolucoes)
+    GET    /api/evolucoes/<id>        -> detalhe
+    POST   /api/evolucoes             -> stored procedure sp_registrar_evolucao
+    PUT    /api/evolucoes/<id>        -> atualizacao parcial
+    DELETE /api/evolucoes/<id>        -> exclusao
+
+REGRA CLINICA 1:1
+-----------------
+Cada consulta possui no maximo uma evolucao. A garantia existe em duas
+camadas: ``UNIQUE`` em ``evolucoes.id_consulta`` e a verificacao dentro da
+procedure. A view ``vw_evolucoes`` entrega o prontuario ja com paciente,
+psicologo e data da consulta.
+============================================================================
+"""
 
 from flask import Blueprint, jsonify, request
 
@@ -15,10 +33,17 @@ from ..validators import (
 
 bp = Blueprint("evolucoes", __name__, url_prefix="/api/evolucoes")
 
+# View com JOIN de evolucoes + consultas + pacientes + psicologos.
 SELECT_EVOLUTION = "SELECT * FROM vw_evolucoes"
 
 
 def _validate_payload(data: dict, partial: bool = False) -> dict:
+    """Valida o payload de evolucao.
+
+    ``humor`` deve estar entre 1 e 10 e ``relato`` ter ao menos 10 caracteres,
+    exatamente como as CHECK constraints ``ck_evolucoes_humor`` e
+    ``ck_evolucoes_relato_minimo``.
+    """
     if not partial:
         require_fields(data, ["id_consulta", "humor", "relato"])
 
@@ -42,6 +67,11 @@ def _validate_payload(data: dict, partial: bool = False) -> dict:
 
 @bp.get("")
 def listar_evolucoes():
+    """Lista evolucoes, filtrando por paciente ou consulta.
+
+    ``ORDER BY criado_em DESC`` mostra primeiro o registro mais recente do
+    prontuario, que e o comportamento esperado na tela clinica.
+    """
     page, per_page = parse_pagination(request.args)
     filters, params = [], {}
 
@@ -72,6 +102,7 @@ def listar_evolucoes():
 
 @bp.get("/<int:evolucao_id>")
 def obter_evolucao(evolucao_id: int):
+    """Devolve uma evolucao pelo id ou 404."""
     evolucao = query_one(f"{SELECT_EVOLUTION} WHERE id_evolucao = %s", (evolucao_id,))
     if not evolucao:
         raise ApiError("Evolucao nao encontrada.", 404)
@@ -80,6 +111,12 @@ def obter_evolucao(evolucao_id: int):
 
 @bp.post("")
 def criar_evolucao():
+    """Registra a evolucao clinica via ``sp_registrar_evolucao``.
+
+    A procedure recusa consulta inexistente, consulta cancelada e consulta que
+    ja possua evolucao. Esses casos representam conflito com o estado atual,
+    portanto a rota responde HTTP 409.
+    """
     values = _validate_payload(get_json_body())
     result = call_procedure(
         "sp_registrar_evolucao",
@@ -105,6 +142,7 @@ def criar_evolucao():
 
 @bp.put("/<int:evolucao_id>")
 def atualizar_evolucao(evolucao_id: int):
+    """Atualiza parcialmente a evolucao (humor, relato, encaminhamento)."""
     values = _validate_payload(get_json_body(), partial=True)
     if not values:
         raise ApiError("Informe ao menos um campo para atualizar.", 400)
@@ -124,6 +162,7 @@ def atualizar_evolucao(evolucao_id: int):
 
 @bp.delete("/<int:evolucao_id>")
 def remover_evolucao(evolucao_id: int):
+    """Exclui uma evolucao do prontuario."""
     affected = execute("DELETE FROM evolucoes WHERE id_evolucao = %s", (evolucao_id,))
     if affected == 0:
         raise ApiError("Evolucao nao encontrada.", 404)

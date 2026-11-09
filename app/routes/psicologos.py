@@ -1,4 +1,28 @@
-"""CRUD de psicologos."""
+"""
+============================================================================
+CRUD de psicologos - Mente Saudavel
+============================================================================
+Rotas:
+    GET    /api/psicologos             -> listagem paginada + filtros
+    GET    /api/psicologos/<id>        -> detalhe
+    POST   /api/psicologos             -> cadastro
+    PUT    /api/psicologos/<id>        -> atualizacao parcial
+    DELETE /api/psicologos/<id>        -> exclusao (RESTRICT se houver consultas)
+
+POR QUE NAO USA PROCEDURE?
+--------------------------
+As regras de psicologo sao simples (formato de CRP/e-mail, valor positivo) e
+sao garantidas pelas CHECK/UNIQUE do banco. As rotas usam SQL parametrizado
+direto; as regras de negocio mais complexas (agenda e prontuario) ficam nas
+procedures.
+
+POR QUE ``ativo`` EXISTE?
+-------------------------
+Exclusao logica: um psicologo com historico nao pode ser apagado (FK
+RESTRICT). Marcando ``ativo = false`` ele deixa de receber agendamentos sem
+perder o historico de consultas.
+============================================================================
+"""
 
 from flask import Blueprint, jsonify, request
 
@@ -24,6 +48,11 @@ SELECT_PSYCHOLOGIST = """
 
 
 def _validate_payload(data: dict, partial: bool = False) -> dict:
+    """Valida e normaliza o payload de psicologo.
+
+    O CRP e validado apenas por tamanho aqui; o formato oficial ``UF/numero``
+    e garantido pela CHECK ``ck_psicologos_crp_formato`` no banco.
+    """
     if not partial:
         require_fields(data, ["nome", "crp", "email", "especialidade", "valor_sessao"])
 
@@ -51,6 +80,11 @@ def _validate_payload(data: dict, partial: bool = False) -> dict:
 
 @bp.get("")
 def listar_psicologos():
+    """Lista psicologos com filtros por especialidade e situacao.
+
+    ``ativo=true/false`` e convertido para booleano antes de ir ao banco,
+    evitando comparar texto com a coluna ``BOOLEAN``.
+    """
     page, per_page = parse_pagination(request.args)
     filters, params = [], {}
 
@@ -77,6 +111,7 @@ def listar_psicologos():
 
 @bp.get("/<int:psicologo_id>")
 def obter_psicologo(psicologo_id: int):
+    """Devolve um psicologo pelo id ou 404."""
     psicologo = query_one(
         f"{SELECT_PSYCHOLOGIST} WHERE id_psicologo = %s", (psicologo_id,)
     )
@@ -87,6 +122,7 @@ def obter_psicologo(psicologo_id: int):
 
 @bp.post("")
 def criar_psicologo():
+    """Cadastra um psicologo e devolve o registro completo (HTTP 201)."""
     values = _validate_payload(get_json_body())
     columns = ", ".join(values.keys())
     placeholders = ", ".join(["%s"] * len(values))
@@ -105,6 +141,7 @@ def criar_psicologo():
 
 @bp.put("/<int:psicologo_id>")
 def atualizar_psicologo(psicologo_id: int):
+    """Atualiza parcialmente um psicologo (inclusive ``ativo``)."""
     values = _validate_payload(get_json_body(), partial=True)
     if not values:
         raise ApiError("Informe ao menos um campo para atualizar.", 400)
@@ -128,6 +165,12 @@ def atualizar_psicologo(psicologo_id: int):
 
 @bp.delete("/<int:psicologo_id>")
 def remover_psicologo(psicologo_id: int):
+    """Exclui um psicologo.
+
+    Se houver consultas vinculadas, a FK ``fk_consultas_psicologo``
+    (``ON DELETE RESTRICT``) dispara ``ForeignKeyViolation`` e o handler
+    global devolve HTTP 409. Nesse caso, o correto e desativar o profissional.
+    """
     affected = execute("DELETE FROM psicologos WHERE id_psicologo = %s", (psicologo_id,))
     if affected == 0:
         raise ApiError("Psicologo nao encontrado.", 404)

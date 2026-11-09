@@ -188,9 +188,9 @@ Todos os dados trafegam em **JSON**. Erros seguem o formato:
 
 ## 8. Testes e evidências
 
-Os testes foram executados com o painel web, com uma página de evidências que
-dispara requisições reais e com o Postman (coleção incluída em `postman/`).
-A suíte automatizada (`pytest`) cobre validações e o fluxo completo da API.
+A validação foi feita em três frentes: capturas do painel web, execução real dos
+endpoints com evidências no estilo Postman e suíte automatizada com `pytest`.
+O relatório completo está em `docs/RELATORIO_DE_TESTES.md`.
 
 ### 8.1 Painel web
 
@@ -207,47 +207,122 @@ especialidade.*
 
 *Figura 4 — Agenda de consultas com modalidade, valor e status.*
 
-### 8.2 Testes da API
+### 8.2 Evidências dos testes da API
 
-![Testes](img/testes-api.png)
+![Cadastro de paciente](img/postman-pacientes.png)
 
-*Figura 5 — Execução real dos endpoints: health check, cadastro de paciente via
-stored procedure, listagem, agendamento, resumo individual e relatório.*
+*Figura 5 — `POST /api/pacientes`: cadastro executado pela stored procedure
+`sp_criar_paciente`, com retorno `201 Created`.*
 
-![API](img/api-pacientes.png)
+![CPF duplicado](img/postman-pacientes-erro.png)
 
-*Figura 6 — Resposta JSON da listagem paginada de pacientes.*
+*Figura 6 — Tentativa de CPF duplicado: a procedure recusa a operação e a API
+responde `409 Conflict`.*
+
+![Agendamento](img/postman-consultas.png)
+
+*Figura 7 — `POST /api/consultas`: agendamento executado pela stored procedure
+`sp_agendar_consulta`.*
+
+![Conflito de horário](img/postman-consultas-erro.png)
+
+*Figura 8 — Double-booking bloqueado pelo índice único parcial e pela procedure
+(`409 Conflict`).*
+
+![Evolução](img/postman-evolucoes.png)
+
+*Figura 9 — `POST /api/evolucoes`: registro do prontuário pela procedure
+`sp_registrar_evolucao`.*
+
+![CHECK constraints](img/postman-constraints.png)
+
+*Figura 10 — Oito CHECK constraints testadas por SQL direto: todas rejeitaram
+os dados inválidos.*
+
+![Listagem](img/postman-listagem.png)
+
+*Figura 11 — `GET /api/pacientes` com filtro por nome e metadados de paginação.*
 
 ### 8.3 Testes automatizados
 
 ```text
 $ pytest -q
-23 passed
+.......................................................  [100%]
+55 passed in 8.50s
 ```
+
+Os 55 testes estão distribuídos em `tests/test_validators.py` (validações),
+`tests/test_api.py` (integração dos endpoints) e `tests/test_constraints.py`
+(CHECK, UNIQUE, FK, CASCADE, índice parcial, triggers, procedures, views e
+funções).
+
+### 8.4 Resumo dos resultados
+
+| Verificação | Resultado |
+|-------------|-----------|
+| Testes HTTP contra a API real | 22 de 22 com o status esperado |
+| CHECK constraints por SQL direto | 8 de 8 rejeitaram o dado inválido |
+| Suíte automatizada | 55 testes aprovados |
+| Cobertura funcional | CRUD, listagens, procedures, views e relatórios |
 
 ## 9. Divisão de tarefas
 
-| Integrante | Desenvolvimento | Documentação | Revisão (duplo check) |
-|------------|-----------------|--------------|-----------------------|
-| _(preencher)_ | Banco de dados, procedures e views | Script SQL comentado | _(outro integrante)_ |
-| _(preencher)_ | API Flask e validações | Endpoints e testes | _(outro integrante)_ |
-| _(preencher)_ | Frontend e integração | Capturas de tela | _(outro integrante)_ |
-| _(preencher)_ | Testes e relatórios | Documento final | _(outro integrante)_ |
+| Integrante | Banco de Dados II | Desenvolvimento Web III | Documentação e testes |
+|------------|-------------------|-------------------------|-----------------------|
+| _(preencher)_ | Modelagem, `01_schema.sql`, CHECK/FK/UNIQUE, triggers e índices | Apoio a `app/db.py` e às procedures | Comentários das colunas e constraints |
+| _(preencher)_ | Views com JOIN (`02_views.sql`) e funções de relatório | API Flask, blueprints, validações e erros | Tabela de endpoints e coleção Postman |
+| _(preencher)_ | Stored procedures (`03_procedures.sql`) e seed (`04_seed.sql`) | Painel web e integração via `fetch` | Capturas de tela e evidências |
+| _(preencher)_ | Testes de integridade (`tests/test_constraints.py`) | Testes de API (`tests/test_api.py`) | Relatório de testes, PDF e ZIP |
 
-## 10. Como executar
+Cada entrega é revisada por pelo menos outro integrante (duplo check).
+
+## 10. Como executar e link de acesso
 
 1. Criar o banco e executar os scripts na ordem `00`, `01`, `02`, `03`, `04`
    (pasta `database/`).
 2. Copiar `.env.example` para `.env` e configurar usuário/senha do PostgreSQL.
 3. Criar o ambiente virtual e instalar `requirements.txt`.
-4. Executar `python run.py` e acessar `http://localhost:5000`.
+4. Executar `python app.py` e acessar `http://localhost:5000`.
 
-Instruções detalhadas estão no `README.md` do repositório.
+| Ambiente | Endereço |
+|----------|----------|
+| Local (desenvolvimento) | `http://localhost:5000` |
+| API / health check | `http://localhost:5000/api/health` |
+| Demonstração pública | <https://strategic-beam-kirk-mostly.trycloudflare.com> |
 
-## 11. Considerações finais
+O link público é temporário e permanece ativo apenas enquanto o Flask, o
+PostgreSQL e o túnel Cloudflare estiverem em execução.
+
+## 11. Empacotamento e entrega (ZIP)
+
+A entrega é um único ZIP com o script SQL completo, o código-fonte e o PDF. O
+nome segue a regra da atividade:
+
+```text
+[nome inicial de cada membro separado por _].[nome do sistema].zip
+```
+
+Exemplo com quatro integrantes (João, Maria, Pedro e Ana):
+
+```text
+Joao_Maria_Pedro_Ana.Mente_Saudavel.zip
+```
+
+Gere o pacote com:
+
+```bash
+python scripts/gerar_zip.py --membros "Joao Maria Pedro Ana"
+```
+
+O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`
+e os arquivos da raiz, ignorando `.venv/`, `.git/`, caches, `.env` e
+temporários.
+
+## 12. Considerações finais
 
 O projeto aplica, de forma integrada, os conteúdos das duas disciplinas: a API
 Flask fornece endpoints REST com validações e respostas JSON, enquanto o
 PostgreSQL garante a integridade dos dados por meio de chaves, restrições,
 procedures, views e triggers. A separação em camadas facilita a manutenção e a
-evolução do sistema.
+evolução do sistema, e as evidências de teste comprovam o funcionamento das
+operações exigidas.

@@ -1,4 +1,24 @@
-"""Relatorios e indicadores do sistema."""
+"""
+============================================================================
+Relatorios e indicadores - Mente Saudavel
+============================================================================
+Rotas:
+    GET /api/relatorios/atendimentos -> funcao fn_relatorio_atendimentos
+    GET /api/relatorios/resumo       -> indicadores do painel
+
+POR QUE USAR FUNCAO DO BANCO?
+-----------------------------
+``fn_relatorio_atendimentos`` le a view ``vw_relatorio_atendimentos`` (JOIN de
+consultas + pacientes + psicologos + evolucoes). Manter o relatorio no banco
+garante que painel, Postman e qualquer outro cliente vejam os mesmos numeros,
+alem de aproveitar indices e evitar trafegar dados desnecessarios.
+
+PERIODO PADRAO
+--------------
+Se ``data_inicio``/``data_fim`` nao forem informados, o relatorio cobre do
+primeiro dia do mes corrente ate hoje - comportamento esperado no painel.
+============================================================================
+"""
 
 from datetime import date
 
@@ -13,6 +33,11 @@ bp = Blueprint("relatorios", __name__, url_prefix="/api/relatorios")
 
 @bp.get("/atendimentos")
 def relatorio_atendimentos():
+    """Relatorio de atendimentos por periodo (inclusive nas duas pontas).
+
+    ``allow_future=True`` porque a agenda pode conter consultas futuras; a
+    validacao garante apenas que ``data_fim >= data_inicio``.
+    """
     today = date.today()
     data_inicio = iso_date(
         request.args.get("data_inicio", today.replace(day=1).isoformat()),
@@ -40,6 +65,12 @@ def relatorio_atendimentos():
 
 @bp.get("/resumo")
 def resumo_geral():
+    """Indicadores gerais do painel.
+
+    A primeira query usa subconsultas escalares para trazer todos os totais em
+    uma unica ida ao banco. A segunda agrupa consultas por especialidade para
+    alimentar o grafico do painel.
+    """
     totais = query_one(
         """
         SELECT
