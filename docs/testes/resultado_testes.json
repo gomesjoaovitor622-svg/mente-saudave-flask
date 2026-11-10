@@ -1,8 +1,8 @@
 {
-  "gerado_em": "2026-11-08T20:45:48",
-  "base_url": "http://127.0.0.1:5055",
+  "gerado_em": "2026-11-09T23:00:40",
+  "base_url": "http://127.0.0.1:5000",
   "banco": "mente_saudavel",
-  "host_banco": "127.0.0.1:55432",
+  "host_banco": "127.0.0.1:55433",
   "total_testes_http": 22,
   "testes_http_ok": 22,
   "total_checks": 8,
@@ -31,8 +31,8 @@
       "rota": "/api/pacientes",
       "payload": {
         "nome": "Paciente Relatorio de Testes",
-        "cpf": "55529237070",
-        "email": "relatorio.55529237070@email.com",
+        "cpf": "33235992413",
+        "email": "relatorio.33235992413@email.com",
         "telefone": "(69) 99999-4242",
         "data_nascimento": "1994-03-18",
         "genero": "nao_informado",
@@ -43,19 +43,19 @@
       "status_esperado": 201,
       "sucesso": true,
       "resposta": {
-        "mensagem": "Paciente Paciente Relatorio de Testes cadastrado com sucesso (id 11).",
+        "mensagem": "Paciente Paciente Relatorio de Testes cadastrado com sucesso (id 6).",
         "dados": {
-          "id_paciente": 11,
+          "id_paciente": 6,
           "nome": "Paciente Relatorio de Testes",
-          "cpf": "55529237070",
-          "email": "relatorio.55529237070@email.com",
+          "cpf": "33235992413",
+          "email": "relatorio.33235992413@email.com",
           "telefone": "(69) 99999-4242",
           "data_nascimento": "1994-03-18",
           "genero": "nao_informado",
           "cidade": "Porto Velho",
           "observacoes": "Registro criado pelo script de relatorio de testes.",
           "status": "ativo",
-          "criado_em": "2026-11-08T20:45:45.548994-04:00",
+          "criado_em": "2026-11-09T23:00:38.673767-04:00",
           "atualizado_em": null
         }
       },
@@ -68,8 +68,8 @@
       "rota": "/api/pacientes",
       "payload": {
         "nome": "Paciente Relatorio de Testes",
-        "cpf": "55529237070",
-        "email": "relatorio.55529237070@email.com",
+        "cpf": "33235992413",
+        "email": "relatorio.33235992413@email.com",
         "telefone": "(69) 99999-4242",
         "data_nascimento": "1994-03-18",
         "genero": "nao_informado",
@@ -100,62 +100,48 @@
           {
             "id_paciente": 6,
             "nome": "Paciente Relatorio de Testes",
-            "cpf": "19420195724",
-            "email": "relatorio.19420195724@email.com",
+            "cpf": "33235992413",
+            "email": "relatorio.33235992413@email.com",
             "telefone": "(69) 99999-4242",
             "data_nascimento": "1994-03-18",
             "genero": "nao_informado",
             "cidade": "Porto Velho",
             "observacoes": "Registro criado pelo script de relatorio de testes.",
             "status": "ativo",
-            "criado_em": "2026-11-07T22:36:49.273511-04:00",
-            "atualizado_em": null
-          },
-          {
-            "id_paciente": 11,
-            "nome": "Paciente Relatorio de Testes",
-            "cpf": "55529237070",
-            "email": "relatorio.55529237070@email.com",
-            "telefone": "(69) 99999-4242",
-            "data_nascimento": "1994-03-18",
-            "genero": "nao_informado",
-            "cidade": "Porto Velho",
-            "observacoes": "Registro criado pelo script de relatorio de testes.",
-            "status": "ativo",
-            "criado_em": "2026-11-08T20:45:45.548994-04:00",
+            "criado_em": "2026-11-09T23:00:38.673767-04:00",
             "atualizado_em": null
           }
         ],
         "paginacao": {
           "pagina": 1,
           "por_pagina": 10,
-          "total": 2,
+          "total": 1,
           "total_paginas": 1
         }
       },
       "comportamento_banco": "SELECT paginado com ILIKE; nao altera dados.",
-      "verificacao_banco": "encontrados no banco: 2"
+      "verificacao_banco": "encontrados no banco: 1"
     },
     {
       "nome": "Obter paciente por id",
       "metodo": "GET",
-      "rota": "/api/pacientes/11",
+      "rota": "/api/pacientes/6",
       "payload": null,
       "status_http": 200,
       "status_esperado": 200,
       "sucesso": true,
       "resposta": {
-        "id_paciente": 11,
+        "id_paciente": 6,
         "nome": "Paciente Relatorio de Testes",
-        "cpf": "55529237070",
-        "email": "relatorio.55529237070@email.com",
+        "cpf": "33235992413",
+        "email": "relatorio.33235992413@email.com",
         "telefone": "(69) 99999-4242",
         "data_nascimento": "1994-03-18",
         "genero": "nao_informado",
         "cidade": "Porto Velho",
         "observacoes": "Registro criado pelo script de relatorio de testes.",
         "status": "ativo",
-        "criado_em": "2026-11-08T20:45:45.548994-04:00",
+        "criado_em": "2026-11-09T23:00:38.673767-04:00",
         "atualizado_em": null
       },
       "comportamento_banco": "SELECT por chave primaria.",
@@ -164,7 +150,7 @@
     {
       "nome": "Atualizar cidade do paciente (PUT parcial)",
       "metodo": "PUT",
-      "rota": "/api/pacientes/11",
+      "rota": "/api/pacientes/6",
       "payload": {
         "cidade": "Ji-Parana"
       },
@@ -174,18 +160,18 @@
       "resposta": {
         "mensagem": "Paciente atualizado com sucesso.",
         "dados": {
-          "id_paciente": 11,
+          "id_paciente": 6,
           "nome": "Paciente Relatorio de Testes",
-          "cpf": "55529237070",
-          "email": "relatorio.55529237070@email.com",
+          "cpf": "33235992413",
+          "email": "relatorio.33235992413@email.com",
           "telefone": "(69) 99999-4242",
           "data_nascimento": "1994-03-18",
           "genero": "nao_informado",
           "cidade": "Ji-Parana",
           "observacoes": "Registro criado pelo script de relatorio de testes.",
           "status": "ativo",
-          "criado_em": "2026-11-08T20:45:45.548994-04:00",
-          "atualizado_em": "2026-11-08T20:45:46.094201-04:00"
+          "criado_em": "2026-11-09T23:00:38.673767-04:00",
+          "atualizado_em": "2026-11-09T23:00:39.065274-04:00"
         }
       },
       "comportamento_banco": "UPDATE em pacientes; trigger preenche atualizado_em; auditoria grava UPDATE.",
@@ -194,7 +180,7 @@
     {
       "nome": "Rejeitar CPF invalido no PUT",
       "metodo": "PUT",
-      "rota": "/api/pacientes/11",
+      "rota": "/api/pacientes/6",
       "payload": {
         "cpf": "12345678900"
       },
@@ -207,16 +193,16 @@
         "status": 422
       },
       "comportamento_banco": "Validacao do Flask interrompe antes do banco; nenhuma alteracao.",
-      "verificacao_banco": "CPF permanece: 55529237070"
+      "verificacao_banco": "CPF permanece: 33235992413"
     },
     {
       "nome": "Criar psicologo",
       "metodo": "POST",
       "rota": "/api/psicologos",
       "payload": {
-        "nome": "Psicologo Relatorio 28153",
-        "crp": "06/28153",
-        "email": "psi.relatorio.28153@email.com",
+        "nome": "Psicologo Relatorio 53126",
+        "crp": "06/53126",
+        "email": "psi.relatorio.53126@email.com",
         "especialidade": "Psicologia Clinica",
         "valor_sessao": 195.0
       },
@@ -226,14 +212,14 @@
       "resposta": {
         "mensagem": "Psicologo cadastrado com sucesso.",
         "dados": {
-          "id_psicologo": 6,
-          "nome": "Psicologo Relatorio 28153",
-          "crp": "06/28153",
-          "email": "psi.relatorio.28153@email.com",
+          "id_psicologo": 4,
+          "nome": "Psicologo Relatorio 53126",
+          "crp": "06/53126",
+          "email": "psi.relatorio.53126@email.com",
           "especialidade": "Psicologia Clinica",
           "valor_sessao": 195.0,
           "ativo": true,
-          "criado_em": "2026-11-08T20:45:46.205011-04:00"
+          "criado_em": "2026-11-09T23:00:39.192495-04:00"
         }
       },
       "comportamento_banco": "INSERT em psicologos com CRP/e-mail unicos.",
@@ -250,14 +236,14 @@
       "resposta": {
         "dados": [
           {
-            "id_psicologo": 6,
-            "nome": "Psicologo Relatorio 28153",
-            "crp": "06/28153",
-            "email": "psi.relatorio.28153@email.com",
+            "id_psicologo": 4,
+            "nome": "Psicologo Relatorio 53126",
+            "crp": "06/53126",
+            "email": "psi.relatorio.53126@email.com",
             "especialidade": "Psicologia Clinica",
             "valor_sessao": 195.0,
             "ativo": true,
-            "criado_em": "2026-11-08T20:45:46.205011-04:00"
+            "criado_em": "2026-11-09T23:00:39.192495-04:00"
           }
         ],
         "paginacao": {
@@ -275,9 +261,9 @@
       "metodo": "POST",
       "rota": "/api/consultas",
       "payload": {
-        "id_paciente": 11,
-        "id_psicologo": 6,
-        "data_hora": "2027-01-07T14:00:00",
+        "id_paciente": 6,
+        "id_psicologo": 4,
+        "data_hora": "2027-01-08T14:00:00",
         "duracao_minutos": 50,
         "modalidade": "online",
         "observacoes": "Consulta criada pelo relatorio de testes."
@@ -286,21 +272,21 @@
       "status_esperado": 201,
       "sucesso": true,
       "resposta": {
-        "mensagem": "Consulta agendada com sucesso (id 11).",
+        "mensagem": "Consulta agendada com sucesso (id 8).",
         "dados": {
-          "id_consulta": 11,
-          "data_hora": "2027-01-07T14:00:00-04:00",
+          "id_consulta": 8,
+          "data_hora": "2027-01-08T14:00:00-04:00",
           "duracao_minutos": 50,
           "modalidade": "online",
           "status": "agendada",
           "valor": 195.0,
           "observacoes": "Consulta criada pelo relatorio de testes.",
-          "id_paciente": 11,
+          "id_paciente": 6,
           "paciente": "Paciente Relatorio de Testes",
-          "paciente_email": "relatorio.55529237070@email.com",
-          "id_psicologo": 6,
-          "psicologo": "Psicologo Relatorio 28153",
-          "crp": "06/28153",
+          "paciente_email": "relatorio.33235992413@email.com",
+          "id_psicologo": 4,
+          "psicologo": "Psicologo Relatorio 53126",
+          "crp": "06/53126",
           "especialidade": "Psicologia Clinica"
         }
       },
@@ -312,9 +298,9 @@
       "metodo": "POST",
       "rota": "/api/consultas",
       "payload": {
-        "id_paciente": 11,
-        "id_psicologo": 6,
-        "data_hora": "2027-01-07T14:00:00",
+        "id_paciente": 6,
+        "id_psicologo": 4,
+        "data_hora": "2027-01-08T14:00:00",
         "duracao_minutos": 50,
         "modalidade": "online",
         "observacoes": "Consulta criada pelo relatorio de testes."
@@ -335,7 +321,7 @@
       "metodo": "POST",
       "rota": "/api/evolucoes",
       "payload": {
-        "id_consulta": 11,
+        "id_consulta": 8,
         "humor": 8,
         "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
         "encaminhamento": "Manter sessoes semanais."
@@ -344,18 +330,18 @@
       "status_esperado": 201,
       "sucesso": true,
       "resposta": {
-        "mensagem": "Evolucao registrada com sucesso (id 7).",
+        "mensagem": "Evolucao registrada com sucesso (id 4).",
         "dados": {
-          "id_evolucao": 7,
-          "id_consulta": 11,
-          "id_paciente": 11,
+          "id_evolucao": 4,
+          "id_consulta": 8,
+          "id_paciente": 6,
           "paciente": "Paciente Relatorio de Testes",
-          "psicologo": "Psicologo Relatorio 28153",
-          "data_hora": "2027-01-07T14:00:00-04:00",
+          "psicologo": "Psicologo Relatorio 53126",
+          "data_hora": "2027-01-08T14:00:00-04:00",
           "humor": 8,
           "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
           "encaminhamento": "Manter sessoes semanais.",
-          "criado_em": "2026-11-08T20:45:46.888818-04:00"
+          "criado_em": "2026-11-09T23:00:39.692381-04:00"
         }
       },
       "comportamento_banco": "INSERT em evolucoes (1:1 com a consulta).",
@@ -366,7 +352,7 @@
       "metodo": "POST",
       "rota": "/api/evolucoes",
       "payload": {
-        "id_consulta": 11,
+        "id_consulta": 8,
         "humor": 8,
         "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
         "encaminhamento": "Manter sessoes semanais."
@@ -393,24 +379,24 @@
       "resposta": {
         "dados": [
           {
-            "id_consulta": 11,
-            "data_hora": "2027-01-07T14:00:00-04:00",
+            "id_consulta": 8,
+            "data_hora": "2027-01-08T14:00:00-04:00",
             "duracao_minutos": 50,
             "modalidade": "online",
             "status": "agendada",
             "valor": 195.0,
             "observacoes": "Consulta criada pelo relatorio de testes.",
-            "id_paciente": 11,
+            "id_paciente": 6,
             "paciente": "Paciente Relatorio de Testes",
-            "paciente_email": "relatorio.55529237070@email.com",
-            "id_psicologo": 6,
-            "psicologo": "Psicologo Relatorio 28153",
-            "crp": "06/28153",
+            "paciente_email": "relatorio.33235992413@email.com",
+            "id_psicologo": 4,
+            "psicologo": "Psicologo Relatorio 53126",
+            "crp": "06/53126",
             "especialidade": "Psicologia Clinica"
           },
           {
             "id_consulta": 7,
-            "data_hora": "2026-11-10T17:00:00-04:00",
+            "data_hora": "2026-11-14T17:00:00-04:00",
             "duracao_minutos": 50,
             "modalidade": "presencial",
             "status": "agendada",
@@ -426,7 +412,7 @@
           },
           {
             "id_consulta": 5,
-            "data_hora": "2026-11-08T16:00:00-04:00",
+            "data_hora": "2026-11-12T16:00:00-04:00",
             "duracao_minutos": 50,
             "modalidade": "online",
             "status": "agendada",
@@ -442,7 +428,7 @@
           },
           {
             "id_consulta": 4,
-            "data_hora": "2026-11-07T09:00:00-04:00",
+            "data_hora": "2026-11-11T09:00:00-04:00",
             "duracao_minutos": 60,
             "modalidade": "presencial",
             "status": "agendada",
@@ -470,7 +456,7 @@
     {
       "nome": "Listar evolucoes da consulta",
       "metodo": "GET",
-      "rota": "/api/evolucoes?id_consulta=11",
+      "rota": "/api/evolucoes?id_consulta=8",
       "payload": null,
       "status_http": 200,
       "status_esperado": 200,
@@ -478,16 +464,16 @@
       "resposta": {
         "dados": [
           {
-            "id_evolucao": 7,
-            "id_consulta": 11,
-            "id_paciente": 11,
+            "id_evolucao": 4,
+            "id_consulta": 8,
+            "id_paciente": 6,
             "paciente": "Paciente Relatorio de Testes",
-            "psicologo": "Psicologo Relatorio 28153",
-            "data_hora": "2027-01-07T14:00:00-04:00",
+            "psicologo": "Psicologo Relatorio 53126",
+            "data_hora": "2027-01-08T14:00:00-04:00",
             "humor": 8,
             "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
             "encaminhamento": "Manter sessoes semanais.",
-            "criado_em": "2026-11-08T20:45:46.888818-04:00"
+            "criado_em": "2026-11-09T23:00:39.692381-04:00"
           }
         ],
         "paginacao": {
@@ -503,19 +489,19 @@
     {
       "nome": "Resumo do paciente (fn_resumo_paciente)",
       "metodo": "GET",
-      "rota": "/api/pacientes/11/resumo",
+      "rota": "/api/pacientes/6/resumo",
       "payload": null,
       "status_http": 200,
       "status_esperado": 200,
       "sucesso": true,
       "resposta": {
-        "id_paciente": 11,
+        "id_paciente": 6,
         "nome": "Paciente Relatorio de Testes",
         "total_consultas": 1,
         "consultas_realizadas": 0,
         "consultas_agendadas": 1,
         "humor_medio": 8.0,
-        "ultima_consulta": "2027-01-07T14:00:00-04:00"
+        "ultima_consulta": "2027-01-08T14:00:00-04:00"
       },
       "comportamento_banco": "Funcao tabular agrega consultas, realizadas, agendadas e humor medio.",
       "verificacao_banco": "total de consultas: 1"
@@ -537,7 +523,7 @@
         "dados": [
           {
             "id_consulta": 6,
-            "data_hora": "2026-10-16T11:00:00-04:00",
+            "data_hora": "2026-10-20T11:00:00-04:00",
             "status": "cancelada",
             "modalidade": "presencial",
             "valor": 220.0,
@@ -551,7 +537,7 @@
           },
           {
             "id_consulta": 1,
-            "data_hora": "2026-10-24T14:00:00-04:00",
+            "data_hora": "2026-10-28T14:00:00-04:00",
             "status": "realizada",
             "modalidade": "presencial",
             "valor": 180.0,
@@ -565,7 +551,7 @@
           },
           {
             "id_consulta": 2,
-            "data_hora": "2026-10-27T10:00:00-04:00",
+            "data_hora": "2026-10-31T10:00:00-04:00",
             "status": "realizada",
             "modalidade": "online",
             "valor": 200.0,
@@ -579,7 +565,7 @@
           },
           {
             "id_consulta": 3,
-            "data_hora": "2026-11-01T15:00:00-04:00",
+            "data_hora": "2026-11-05T15:00:00-04:00",
             "status": "realizada",
             "modalidade": "presencial",
             "valor": 180.0,
@@ -593,7 +579,7 @@
           },
           {
             "id_consulta": 4,
-            "data_hora": "2026-11-07T09:00:00-04:00",
+            "data_hora": "2026-11-11T09:00:00-04:00",
             "status": "agendada",
             "modalidade": "presencial",
             "valor": 220.0,
@@ -607,7 +593,7 @@
           },
           {
             "id_consulta": 5,
-            "data_hora": "2026-11-08T16:00:00-04:00",
+            "data_hora": "2026-11-12T16:00:00-04:00",
             "status": "agendada",
             "modalidade": "online",
             "valor": 200.0,
@@ -621,7 +607,7 @@
           },
           {
             "id_consulta": 7,
-            "data_hora": "2026-11-10T17:00:00-04:00",
+            "data_hora": "2026-11-14T17:00:00-04:00",
             "status": "agendada",
             "modalidade": "presencial",
             "valor": 180.0,
@@ -634,15 +620,15 @@
             "relato": null
           },
           {
-            "id_consulta": 11,
-            "data_hora": "2027-01-07T14:00:00-04:00",
+            "id_consulta": 8,
+            "data_hora": "2027-01-08T14:00:00-04:00",
             "status": "agendada",
             "modalidade": "online",
             "valor": 195.0,
-            "id_paciente": 11,
+            "id_paciente": 6,
             "paciente": "Paciente Relatorio de Testes",
-            "id_psicologo": 6,
-            "psicologo": "Psicologo Relatorio 28153",
+            "id_psicologo": 4,
+            "psicologo": "Psicologo Relatorio 53126",
             "especialidade": "Psicologia Clinica",
             "humor": 8,
             "relato": "Paciente relatou melhora significativa do sono e da ansiedade."
@@ -662,7 +648,7 @@
       "sucesso": true,
       "resposta": {
         "totais": {
-          "pacientes_ativos": 7,
+          "pacientes_ativos": 6,
           "psicologos_ativos": 4,
           "consultas_agendadas": 4,
           "consultas_realizadas": 3,
@@ -693,7 +679,7 @@
     {
       "nome": "Excluir consulta (CASCADE na evolucao)",
       "metodo": "DELETE",
-      "rota": "/api/consultas/11",
+      "rota": "/api/consultas/8",
       "payload": null,
       "status_http": 200,
       "status_esperado": 200,
@@ -707,7 +693,7 @@
     {
       "nome": "Excluir paciente",
       "metodo": "DELETE",
-      "rota": "/api/pacientes/11",
+      "rota": "/api/pacientes/6",
       "payload": null,
       "status_http": 200,
       "status_esperado": 200,
@@ -721,7 +707,7 @@
     {
       "nome": "Excluir psicologo",
       "metodo": "DELETE",
-      "rota": "/api/psicologos/6",
+      "rota": "/api/psicologos/4",
       "payload": null,
       "status_http": 200,
       "status_esperado": 200,
@@ -735,7 +721,7 @@
     {
       "nome": "Buscar paciente removido (404)",
       "metodo": "GET",
-      "rota": "/api/pacientes/11",
+      "rota": "/api/pacientes/6",
       "payload": null,
       "status_http": 404,
       "status_esperado": 404,

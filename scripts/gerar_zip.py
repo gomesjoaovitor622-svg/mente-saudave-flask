@@ -44,7 +44,6 @@ EXCLUDED_DIRS = {
     ".ruff_cache",
     "node_modules",
     ".idea",
-    ".vscode",
 }
 
 # Padroes de arquivo ignorados (segredos, caches, temporarios).
@@ -55,6 +54,7 @@ EXCLUDED_PATTERNS = (
     "*.log",
     "*.tmp",
     "*.bak",
+    "*.zip",
     "Thumbs.db",
     ".DS_Store",
 )
@@ -133,7 +133,7 @@ def main() -> int:
     size_mb = result.stat().st_size / (1024 * 1024)
     print(f"ZIP gerado: {result}")
     print(f"Tamanho: {size_mb:.2f} MB")
-    print("Conteudo: app/, database/, docs/, postman/, scripts/, tests/ e arquivos raiz.")
+    print("Conteudo: app/, database/, docs/, postman/, scripts/, tests/, .vscode/ e arquivos raiz.")
     return 0
 
 

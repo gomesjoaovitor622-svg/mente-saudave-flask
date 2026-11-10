@@ -1,0 +1,30 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["tests"],
+  "files.encoding": "utf8",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.rulers": [100],
+  "[python]": {
+    "editor.tabSize": 4,
+    "editor.formatOnSave": false
+  },
+  "[sql]": {
+    "editor.tabSize": 4
+  },
+  "sqltools.connections": [
+    {
+      "name": "Mente Saudavel (local)",
+      "driver": "PostgreSQL",
+      "server": "127.0.0.1",
+      "port": 55433,
+      "database": "mente_saudavel",
+      "username": "postgres",
+      "password": "postgres"
+    }
+  ]
+}

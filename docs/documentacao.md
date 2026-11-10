@@ -70,6 +70,27 @@ A aplicação segue uma organização em camadas:
   estrangeiras, *check constraints*, índices, *triggers*, *views* e
   *stored procedures*.
 
+### 4.1 Estrutura do repositório
+
+```text
+mente-saudave-flask/
+├── app/                 # API Flask (blueprints, validação, acesso ao banco)
+│   ├── routes/          # pacientes, psicólogos, consultas, evoluções, relatórios
+│   ├── static/          # CSS e JavaScript do painel
+│   └── templates/       # index.html (painel) e api.html (índice de endpoints)
+├── database/            # 00_create_database, 01_schema, 02_views, 03_procedures, 04_seed
+├── docs/                # PDF, relatório de testes, gerador e imagens
+├── postman/             # coleção da API
+├── scripts/             # banco local, relatório de testes, geração e verificação do ZIP
+├── tests/               # validadores, API e integridade do banco
+├── .vscode/             # tarefas, depuração e extensões recomendadas
+├── api.http             # requisições prontas para o REST Client do VS Code
+├── app.py               # ponto de entrada oficial
+├── run.py               # compatibilidade (delega para app.py)
+├── requirements.txt
+└── README.md
+```
+
 ## 5. Modelo de dados
 
 O banco foi modelado seguindo a normalização (3ª forma normal), evitando
@@ -88,7 +109,7 @@ do psicólogo são obtidos por `JOIN`.
 
 ### 5.2 Check constraints
 
-Foram implementadas mais de 20 *check constraints*. As principais:
+Foram implementadas 18 *check constraints* nomeadas. As principais:
 
 - `ck_pacientes_cpf_formato` — CPF deve conter exatamente 11 dígitos;
 - `ck_pacientes_email_formato` — formato mínimo de e-mail;
@@ -107,7 +128,20 @@ Além disso, um **índice único parcial** impede dois agendamentos ativos no
 mesmo horário para o mesmo psicólogo, liberando o horário quando a consulta é
 cancelada.
 
-### 5.3 Comentários das colunas no script
+### 5.3 Objetos do banco de dados
+
+| Objeto | Qtd. | Observação |
+|--------|------|------------|
+| Tabelas | 5 | `psicologos`, `pacientes`, `consultas`, `evolucoes`, `auditoria_pacientes` |
+| CHECK constraints | 18 | CPF, CRP, datas, status, duração, modalidade, humor e relato mínimo |
+| Chaves estrangeiras | 3 | duas em `consultas` e uma em `evolucoes` |
+| Views | 3 | agenda completa, evoluções e relatório de atendimentos |
+| Stored procedures | 4 | cadastro, agendamento, evolução e relatório com `REFCURSOR` |
+| Funções | 2 | resumo do paciente e relatório em formato tabular |
+| Triggers | 2 | auditoria de pacientes em INSERT/UPDATE/DELETE |
+| Índices | 6 | inclui o índice único parcial que evita *double-booking* |
+
+### 5.4 Comentários das colunas no script
 
 Conforme exigido, o script `database/01_schema.sql` descreve cada coluna em
 comentário. Exemplo:
@@ -158,6 +192,7 @@ COMMIT;
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
+| GET | `/api` | Índice navegável de todos os endpoints (HTML no navegador, JSON em clientes) |
 | GET | `/api/health` | Verifica API e conexão com o banco |
 | GET | `/api/pacientes` | Lista paginada (filtros `nome`, `status`, `cidade`) |
 | GET | `/api/pacientes/{id}` | Busca paciente |
@@ -185,6 +220,23 @@ Todos os dados trafegam em **JSON**. Erros seguem o formato:
   "status": 422
 }
 ```
+
+### 7.1 Segurança e boas práticas
+
+- **Credenciais fora do código:** host, porta, usuário e senha vêm de variáveis
+  de ambiente (`.env`), que não é versionado.
+- **Consultas parametrizadas:** todos os valores passam por `%s` no psycopg2,
+  eliminando SQL injection; o nome da procedure é constante no código.
+- **Validação em três camadas:** front-end, API (CPF, e-mail, datas, enums) e
+  banco (CHECK, UNIQUE, FK e triggers).
+- **Erros sem vazamento:** detalhes técnicos do PostgreSQL vão para o log; o
+  cliente recebe JSON padronizado com status semântico.
+- **CORS e preflight:** o painel e o Postman podem consumir a API de outra
+  origem; `OPTIONS` responde 204.
+- **Conexão por requisição:** uma conexão por request em `flask.g`, fechada no
+  `teardown`, evitando vazamento.
+- **Integridade no banco:** constraints, índice único parcial e triggers
+  garantem as regras mesmo fora da API.
 
 ## 8. Testes e evidências
 
@@ -248,10 +300,10 @@ os dados inválidos.*
 ```text
 $ pytest -q
 .......................................................  [100%]
-55 passed in 8.50s
+56 passed in 5.66s
 ```
 
-Os 55 testes estão distribuídos em `tests/test_validators.py` (validações),
+Os 56 testes estão distribuídos em `tests/test_validators.py` (validações),
 `tests/test_api.py` (integração dos endpoints) e `tests/test_constraints.py`
 (CHECK, UNIQUE, FK, CASCADE, índice parcial, triggers, procedures, views e
 funções).
@@ -262,7 +314,7 @@ funções).
 |-------------|-----------|
 | Testes HTTP contra a API real | 22 de 22 com o status esperado |
 | CHECK constraints por SQL direto | 8 de 8 rejeitaram o dado inválido |
-| Suíte automatizada | 55 testes aprovados |
+| Suíte automatizada | 56 testes aprovados |
 | Cobertura funcional | CRUD, listagens, procedures, views e relatórios |
 
 ## 9. Divisão de tarefas
@@ -276,6 +328,21 @@ Cada entrega é revisada pelo outro integrante (duplo check).
 
 ## 10. Como executar e link de acesso
 
+### 10.1 VS Code (caminho rápido)
+
+1. Abrir a pasta do projeto no VS Code (`code .`).
+2. Aceitar as extensões recomendadas (Python, Pylance, SQLTools e REST Client).
+3. Executar uma vez a tarefa **`Projeto: primeiro uso`** (`Ctrl+Shift+P` →
+   **Tasks: Run Task**). Ela cria o `.venv`, instala as dependências, cria um
+   cluster PostgreSQL exclusivo do projeto na porta **55433** e gera o `.env`.
+4. Pressionar **F5** (configuração **API: depurar (Flask)**) ou executar a
+   tarefa **`API: executar`**.
+5. Abrir `http://localhost:5000` e a lista de endpoints em
+   `http://localhost:5000/api`. As requisições também podem ser disparadas pelo
+   arquivo `api.http` com a extensão REST Client.
+
+### 10.2 Execução manual
+
 1. Criar o banco e executar os scripts na ordem `00`, `01`, `02`, `03`, `04`
    (pasta `database/`).
 2. Copiar `.env.example` para `.env` e configurar usuário/senha do PostgreSQL.
@@ -285,8 +352,9 @@ Cada entrega é revisada pelo outro integrante (duplo check).
 | Ambiente | Endereço |
 |----------|----------|
 | Local (desenvolvimento) | `http://localhost:5000` |
+| Índice de endpoints | `http://localhost:5000/api` |
 | API / health check | `http://localhost:5000/api/health` |
-| Demonstração pública | <https://strategic-beam-kirk-mostly.trycloudflare.com> |
+| Demonstração pública | <https://unlike-add-peace-exist.trycloudflare.com> |
 
 O link público é temporário e permanece ativo apenas enquanto o Flask, o
 PostgreSQL e o túnel Cloudflare estiverem em execução.
@@ -306,15 +374,17 @@ Exemplo com quatro integrantes (João, Maria, Pedro e Ana):
 Joao_Maria_Pedro_Ana.Mente_Saudavel.zip
 ```
 
-Gere o pacote com:
+Para esta entrega (Jhennyfér e João Vitor), o pacote é
+`Jhennyfer_Joao.Mente_Saudavel.zip`. Gere e confira com:
 
 ```bash
-python scripts/gerar_zip.py --membros "Joao Maria Pedro Ana"
+python scripts/gerar_zip.py --membros "Jhennyfer Joao" --saida entrega
+python scripts/verificar_entrega.py
 ```
 
-O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`
-e os arquivos da raiz, ignorando `.venv/`, `.git/`, caches, `.env` e
-temporários.
+O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`,
+`.vscode/`, `api.http` e os arquivos da raiz, ignorando `.venv/`, `.git/`,
+caches, `.env`, outros ZIPs e temporários.
 
 ## 12. Considerações finais
 

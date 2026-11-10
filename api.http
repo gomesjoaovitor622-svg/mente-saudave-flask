@@ -1,0 +1,167 @@
+### ==========================================================================
+### Mente Saudavel - colecao HTTP para o VS Code (extensao REST Client)
+### Clique em "Send Request" acima de cada requisicao.
+### Requer a extensao humao.rest-client (recomendada em .vscode/extensions.json).
+### ==========================================================================
+
+@baseUrl = http://localhost:5000
+
+### Indice da API (JSON)
+GET {{baseUrl}}/api
+
+### Health check (API + PostgreSQL)
+GET {{baseUrl}}/api/health
+
+### --------------------------------------------------------------------------
+### Pacientes
+### --------------------------------------------------------------------------
+
+### Listar pacientes (paginacao e filtros)
+GET {{baseUrl}}/api/pacientes?page=1&per_page=10
+
+### Buscar paciente por id
+GET {{baseUrl}}/api/pacientes/1
+
+### Resumo do paciente
+GET {{baseUrl}}/api/pacientes/1/resumo
+
+### Criar paciente (stored procedure)
+POST {{baseUrl}}/api/pacientes
+Content-Type: application/json
+
+{
+  "nome": "Paciente Exemplo",
+  "cpf": "52998224725",
+  "email": "paciente.exemplo@email.com",
+  "telefone": "(69) 99999-0000",
+  "data_nascimento": "1995-05-20",
+  "cidade": "Porto Velho",
+  "estado": "RO",
+  "status": "ativo"
+}
+
+### Atualizar paciente
+PUT {{baseUrl}}/api/pacientes/1
+Content-Type: application/json
+
+{
+  "nome": "Paciente Atualizado",
+  "email": "paciente.atualizado@email.com",
+  "status": "ativo"
+}
+
+### Excluir paciente
+DELETE {{baseUrl}}/api/pacientes/6
+
+### --------------------------------------------------------------------------
+### Psicologos
+### --------------------------------------------------------------------------
+
+### Listar psicologos
+GET {{baseUrl}}/api/psicologos
+
+### Buscar psicologo por id
+GET {{baseUrl}}/api/psicologos/1
+
+### Criar psicologo
+POST {{baseUrl}}/api/psicologos
+Content-Type: application/json
+
+{
+  "nome": "Psicologo Exemplo",
+  "crp": "06/999999",
+  "email": "psicologo.exemplo@email.com",
+  "especialidade": "Terapia Cognitivo-Comportamental",
+  "valor_sessao": 180.00,
+  "ativo": true
+}
+
+### Atualizar psicologo
+PUT {{baseUrl}}/api/psicologos/1
+Content-Type: application/json
+
+{
+  "nome": "Psicologo Atualizado",
+  "valor_sessao": 200.00,
+  "ativo": true
+}
+
+### Excluir psicologo
+DELETE {{baseUrl}}/api/psicologos/3
+
+### --------------------------------------------------------------------------
+### Consultas
+### --------------------------------------------------------------------------
+
+### Listar consultas por status
+GET {{baseUrl}}/api/consultas?status=agendada
+
+### Buscar consulta por id
+GET {{baseUrl}}/api/consultas/1
+
+### Agendar consulta (stored procedure com deteccao de conflito)
+POST {{baseUrl}}/api/consultas
+Content-Type: application/json
+
+{
+  "id_paciente": 1,
+  "id_psicologo": 1,
+  "data_hora": "2030-01-10T14:00:00",
+  "modalidade": "presencial",
+  "observacoes": "Primeira sessao"
+}
+
+### Atualizar consulta
+PUT {{baseUrl}}/api/consultas/1
+Content-Type: application/json
+
+{
+  "status": "realizada",
+  "observacoes": "Atendimento concluido"
+}
+
+### Excluir consulta
+DELETE {{baseUrl}}/api/consultas/4
+
+### --------------------------------------------------------------------------
+### Evolucoes
+### --------------------------------------------------------------------------
+
+### Listar evolucoes de um paciente
+GET {{baseUrl}}/api/evolucoes?id_paciente=1
+
+### Buscar evolucao por id
+GET {{baseUrl}}/api/evolucoes/1
+
+### Registrar evolucao (stored procedure)
+POST {{baseUrl}}/api/evolucoes
+Content-Type: application/json
+
+{
+  "id_consulta": 1,
+  "humor": 8,
+  "relato": "Paciente relatou melhora no sono e na ansiedade durante a semana.",
+  "encaminhamento": "Manter acompanhamento semanal"
+}
+
+### Atualizar evolucao
+PUT {{baseUrl}}/api/evolucoes/1
+Content-Type: application/json
+
+{
+  "humor": 9,
+  "relato": "Evolucao positiva mantida; paciente aderiu as tecnicas propostas."
+}
+
+### Excluir evolucao
+DELETE {{baseUrl}}/api/evolucoes/2
+
+### --------------------------------------------------------------------------
+### Relatorios
+### --------------------------------------------------------------------------
+
+### Atendimentos por periodo
+GET {{baseUrl}}/api/relatorios/atendimentos?data_inicio=2026-01-01&data_fim=2026-12-31
+
+### Resumo geral da clinica
+GET {{baseUrl}}/api/relatorios/resumo

@@ -1,0 +1,135 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Projeto: preparar ambiente",
+      "detail": "Cria o .venv (se necessario) e instala as dependencias de desenvolvimento.",
+      "type": "shell",
+      "command": "if (-not (Test-Path .venv)) { python -m venv .venv }; .\\.venv\\Scripts\\python.exe -m pip install --upgrade pip; .\\.venv\\Scripts\\python.exe -m pip install -r requirements-dev.txt",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Projeto: primeiro uso",
+      "detail": "Prepara o ambiente e cria o banco local do projeto. Execute apenas uma vez.",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Projeto: preparar ambiente", "Banco: configurar"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Banco: configurar",
+      "detail": "Cria o cluster PostgreSQL exclusivo do projeto, o banco e carrega os scripts 01 a 04.",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["scripts/banco_local.py", "configurar", "--com-teste"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Banco: iniciar",
+      "detail": "Sobe o PostgreSQL local na porta 55433.",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["scripts/banco_local.py", "iniciar"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Banco: parar",
+      "detail": "Desliga o PostgreSQL local.",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["scripts/banco_local.py", "parar"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Banco: status",
+      "detail": "Mostra se o cluster local esta no ar.",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["scripts/banco_local.py", "status"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Banco: recriar (apaga os dados)",
+      "detail": "Apaga e recria o banco do projeto, recarregando schema, views, procedures e seed.",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["scripts/banco_local.py", "recriar"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "API: executar",
+      "detail": "Sobe o PostgreSQL local e inicia o Flask em http://localhost:5000.",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe app.py",
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": ["Banco: iniciar"],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "python",
+        "pattern": {
+          "regexp": "^\\s*File \"([^\"]+)\", line (\\d+)",
+          "file": 1,
+          "line": 2
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Running on http://"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "API: abrir painel no navegador",
+      "type": "shell",
+      "command": "Start-Process http://localhost:5000",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "API: abrir lista de endpoints",
+      "type": "shell",
+      "command": "Start-Process http://localhost:5000/api",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Testes: executar",
+      "detail": "Roda a suite completa contra o banco local de teste.",
+      "type": "shell",
+      "command": "$env:RUN_DB_TESTS='1'; $env:TEST_DB_NAME='mente_saudavel_test'; .\\.venv\\Scripts\\python.exe -m pytest -q",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Testes: validadores (sem banco)",
+      "type": "shell",
+      "command": ".\\.venv\\Scripts\\python.exe -m pytest tests/test_validators.py -q",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Entrega: gerar PDF e ZIP",
+      "detail": "Regenera a documentacao em PDF e o pacote de entrega com os nomes da dupla.",
+      "type": "shell",
+      "command": ".\\.venv\\Scripts\\python.exe docs/gerar_documentacao.py; .\\.venv\\Scripts\\python.exe scripts/gerar_zip.py --membros \"Jhennyfer Joao\" --saida entrega",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Entrega: verificar",
+      "detail": "Confere se PDF, ZIP, nomes e estrutura da entrega estao corretos.",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["scripts/verificar_entrega.py"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ]
+}

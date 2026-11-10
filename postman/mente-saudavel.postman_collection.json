@@ -17,14 +17,35 @@
       "name": "Saude",
       "item": [
         {
+          "name": "Indice de endpoints",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api"
+              ]
+            }
+          }
+        },
+        {
           "name": "Health check",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
             }
           }
         }
@@ -40,11 +61,22 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pacientes?page=1&per_page=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pacientes"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pacientes"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "per_page", "value": "10" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
               ]
             }
           }
@@ -53,15 +85,25 @@
           "name": "Criar paciente",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nome\": \"Ana Beatriz Souza\",\n  \"cpf\": \"52998224725\",\n  \"email\": \"ana.souza@email.com\",\n  \"telefone\": \"(69) 99999-1234\",\n  \"data_nascimento\": \"1994-03-18\",\n  \"genero\": \"feminino\",\n  \"cidade\": \"Porto Velho\",\n  \"observacoes\": \"Paciente encaminhada pela clinica-escola.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/pacientes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pacientes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pacientes"
+              ]
             }
           }
         },
@@ -72,8 +114,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pacientes/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pacientes", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pacientes",
+                "1"
+              ]
             }
           }
         },
@@ -84,8 +132,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pacientes/1/resumo",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pacientes", "1", "resumo"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pacientes",
+                "1",
+                "resumo"
+              ]
             }
           }
         },
@@ -93,15 +148,26 @@
           "name": "Atualizar paciente",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"cidade\": \"Ji-Parana\",\n  \"telefone\": \"(69) 98888-4321\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/pacientes/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pacientes", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pacientes",
+                "1"
+              ]
             }
           }
         },
@@ -112,8 +178,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pacientes/6",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pacientes", "6"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pacientes",
+                "6"
+              ]
             }
           }
         }
@@ -129,8 +201,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/psicologos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "psicologos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "psicologos"
+              ]
             }
           }
         },
@@ -138,15 +215,88 @@
           "name": "Criar psicologo",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nome\": \"Paulo Henrique Dias\",\n  \"crp\": \"06/65432\",\n  \"email\": \"paulo.dias@mentesaudavel.com\",\n  \"especialidade\": \"Terapia Familiar\",\n  \"valor_sessao\": 190.00,\n  \"ativo\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/psicologos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "psicologos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "psicologos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar psicologo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/psicologos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "psicologos",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar psicologo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/psicologos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "psicologos",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Paulo Henrique Dias\",\n  \"crp\": \"06/65432\",\n  \"email\": \"paulo.dias@mentesaudavel.com\",\n  \"especialidade\": \"Terapia Familiar\",\n  \"valor_sessao\": 200.0,\n  \"ativo\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Excluir psicologo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/psicologos/3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "psicologos",
+                "3"
+              ]
             }
           }
         }
@@ -162,9 +312,19 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/consultas?status=agendada",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "consultas"],
-              "query": [{ "key": "status", "value": "agendada" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "agendada"
+                }
+              ]
             }
           }
         },
@@ -172,15 +332,25 @@
           "name": "Agendar consulta",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_paciente\": 1,\n  \"id_psicologo\": 1,\n  \"data_hora\": \"2026-12-02T14:00:00\",\n  \"duracao_minutos\": 50,\n  \"modalidade\": \"presencial\",\n  \"observacoes\": \"Sessao de acompanhamento.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/consultas",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "consultas"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "consultas"
+              ]
             }
           }
         },
@@ -188,15 +358,62 @@
           "name": "Atualizar status da consulta",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"realizada\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/consultas/4",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "consultas", "4"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "consultas",
+                "4"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar consulta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/consultas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "consultas",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Excluir consulta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/consultas/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "consultas",
+                "4"
+              ]
             }
           }
         }
@@ -212,9 +429,19 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/evolucoes?id_paciente=1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "evolucoes"],
-              "query": [{ "key": "id_paciente", "value": "1" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evolucoes"
+              ],
+              "query": [
+                {
+                  "key": "id_paciente",
+                  "value": "1"
+                }
+              ]
             }
           }
         },
@@ -222,15 +449,88 @@
           "name": "Registrar evolucao",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_consulta\": 4,\n  \"humor\": 8,\n  \"relato\": \"Paciente relatou melhora no sono e na ansiedade.\",\n  \"encaminhamento\": \"Manter sessoes semanais.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/evolucoes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "evolucoes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evolucoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar evolucao",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/evolucoes/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evolucoes",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar evolucao",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/evolucoes/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evolucoes",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"humor\": 9,\n  \"relato\": \"Evolucao positiva mantida; paciente aderiu as tecnicas propostas.\",\n  \"encaminhamento\": \"Manter sessoes semanais.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Excluir evolucao",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/evolucoes/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evolucoes",
+                "2"
+              ]
             }
           }
         }
@@ -246,11 +546,23 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/relatorios/atendimentos?data_inicio=2026-11-01&data_fim=2026-12-31",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "relatorios", "atendimentos"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "relatorios",
+                "atendimentos"
+              ],
               "query": [
-                { "key": "data_inicio", "value": "2026-11-01" },
-                { "key": "data_fim", "value": "2026-12-31" }
+                {
+                  "key": "data_inicio",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "data_fim",
+                  "value": "2026-12-31"
+                }
               ]
             }
           }
@@ -262,8 +574,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/relatorios/resumo",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "relatorios", "resumo"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "relatorios",
+                "resumo"
+              ]
             }
           }
         }

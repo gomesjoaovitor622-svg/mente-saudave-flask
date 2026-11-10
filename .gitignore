@@ -20,7 +20,6 @@ pgdata/
 backup/
 
 # Editores e sistema operacional
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db

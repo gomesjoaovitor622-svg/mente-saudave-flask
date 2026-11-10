@@ -1,8 +1,8 @@
 # Relatorio de Testes - Mente Saudavel
 
-**Data de execucao:** 2026-11-08T20:45:48  
-**API testada:** `http://127.0.0.1:5055`  
-**Banco de dados:** `mente_saudavel` em `127.0.0.1:55432`  
+**Data de execucao:** 2026-11-09T23:00:40  
+**API testada:** `http://127.0.0.1:5000`  
+**Banco de dados:** `mente_saudavel` em `127.0.0.1:55433`  
 **Responsavel:** equipe Mente Saudavel (IFRO)
 
 ## 1. Resumo
@@ -24,9 +24,9 @@
 | 2 | POST | `/api/pacientes` | 201 | 201 | OK | INSERT em pacientes pela procedure; trigger trg_auditar_paciente grava linha INSERT em auditoria_pacientes. |
 | 3 | POST | `/api/pacientes` | 409 | 409 | OK | A procedure detecta duplicidade antes do INSERT; nenhuma linha nova. |
 | 4 | GET | `/api/pacientes?nome=Paciente Relatorio` | 200 | 200 | OK | SELECT paginado com ILIKE; nao altera dados. |
-| 5 | GET | `/api/pacientes/11` | 200 | 200 | OK | SELECT por chave primaria. |
-| 6 | PUT | `/api/pacientes/11` | 200 | 200 | OK | UPDATE em pacientes; trigger preenche atualizado_em; auditoria grava UPDATE. |
-| 7 | PUT | `/api/pacientes/11` | 422 | 422 | OK | Validacao do Flask interrompe antes do banco; nenhuma alteracao. |
+| 5 | GET | `/api/pacientes/6` | 200 | 200 | OK | SELECT por chave primaria. |
+| 6 | PUT | `/api/pacientes/6` | 200 | 200 | OK | UPDATE em pacientes; trigger preenche atualizado_em; auditoria grava UPDATE. |
+| 7 | PUT | `/api/pacientes/6` | 422 | 422 | OK | Validacao do Flask interrompe antes do banco; nenhuma alteracao. |
 | 8 | POST | `/api/psicologos` | 201 | 201 | OK | INSERT em psicologos com CRP/e-mail unicos. |
 | 9 | GET | `/api/psicologos?especialidade=Psicologia Clinica` | 200 | 200 | OK | SELECT com ILIKE e paginacao. |
 | 10 | POST | `/api/consultas` | 201 | 201 | OK | INSERT em consultas pela procedure; valor recebe o padrao do psicologo quando omitido; indice unico parcial protege o horario. |
@@ -34,14 +34,14 @@
 | 12 | POST | `/api/evolucoes` | 201 | 201 | OK | INSERT em evolucoes (1:1 com a consulta). |
 | 13 | POST | `/api/evolucoes` | 409 | 409 | OK | A procedure recusa a segunda evolucao; UNIQUE em id_consulta e a ultima barreira. |
 | 14 | GET | `/api/consultas?status=agendada` | 200 | 200 | OK | SELECT na view vw_agenda_completa (JOIN de 3 tabelas). |
-| 15 | GET | `/api/evolucoes?id_consulta=11` | 200 | 200 | OK | SELECT na view vw_evolucoes (JOIN de 4 tabelas). |
-| 16 | GET | `/api/pacientes/11/resumo` | 200 | 200 | OK | Funcao tabular agrega consultas, realizadas, agendadas e humor medio. |
+| 15 | GET | `/api/evolucoes?id_consulta=8` | 200 | 200 | OK | SELECT na view vw_evolucoes (JOIN de 4 tabelas). |
+| 16 | GET | `/api/pacientes/6/resumo` | 200 | 200 | OK | Funcao tabular agrega consultas, realizadas, agendadas e humor medio. |
 | 17 | GET | `/api/relatorios/atendimentos?data_inicio=2000-01-01&data_fim=2100-12-31` | 200 | 200 | OK | SELECT na funcao fn_relatorio_atendimentos, que le a view vw_relatorio_atendimentos. |
 | 18 | GET | `/api/relatorios/resumo` | 200 | 200 | OK | Agregacoes (COUNT/AVG) e agrupamento por especialidade. |
-| 19 | DELETE | `/api/consultas/11` | 200 | 200 | OK | DELETE em consultas; FK ON DELETE CASCADE remove a evolucao. |
-| 20 | DELETE | `/api/pacientes/11` | 200 | 200 | OK | DELETE em pacientes; auditoria grava DELETE. |
-| 21 | DELETE | `/api/psicologos/6` | 200 | 200 | OK | DELETE em psicologos (sem consultas vinculadas). |
-| 22 | GET | `/api/pacientes/11` | 404 | 404 | OK | Nenhuma linha encontrada; handler devolve JSON padronizado. |
+| 19 | DELETE | `/api/consultas/8` | 200 | 200 | OK | DELETE em consultas; FK ON DELETE CASCADE remove a evolucao. |
+| 20 | DELETE | `/api/pacientes/6` | 200 | 200 | OK | DELETE em pacientes; auditoria grava DELETE. |
+| 21 | DELETE | `/api/psicologos/4` | 200 | 200 | OK | DELETE em psicologos (sem consultas vinculadas). |
+| 22 | GET | `/api/pacientes/6` | 404 | 404 | OK | Nenhuma linha encontrada; handler devolve JSON padronizado. |
 
 ## 3. Detalhamento dos testes HTTP
 
@@ -75,8 +75,8 @@
 ```json
 {
   "nome": "Paciente Relatorio de Testes",
-  "cpf": "55529237070",
-  "email": "relatorio.55529237070@email.com",
+  "cpf": "33235992413",
+  "email": "relatorio.33235992413@email.com",
   "telefone": "(69) 99999-4242",
   "data_nascimento": "1994-03-18",
   "genero": "nao_informado",
@@ -89,19 +89,19 @@
 
 ```json
 {
-  "mensagem": "Paciente Paciente Relatorio de Testes cadastrado com sucesso (id 11).",
+  "mensagem": "Paciente Paciente Relatorio de Testes cadastrado com sucesso (id 6).",
   "dados": {
-    "id_paciente": 11,
+    "id_paciente": 6,
     "nome": "Paciente Relatorio de Testes",
-    "cpf": "55529237070",
-    "email": "relatorio.55529237070@email.com",
+    "cpf": "33235992413",
+    "email": "relatorio.33235992413@email.com",
     "telefone": "(69) 99999-4242",
     "data_nascimento": "1994-03-18",
     "genero": "nao_informado",
     "cidade": "Porto Velho",
     "observacoes": "Registro criado pelo script de relatorio de testes.",
     "status": "ativo",
-    "criado_em": "2026-11-08T20:45:45.548994-04:00",
+    "criado_em": "2026-11-09T23:00:38.673767-04:00",
     "atualizado_em": null
   }
 }
@@ -119,8 +119,8 @@
 ```json
 {
   "nome": "Paciente Relatorio de Testes",
-  "cpf": "55529237070",
-  "email": "relatorio.55529237070@email.com",
+  "cpf": "33235992413",
+  "email": "relatorio.33235992413@email.com",
   "telefone": "(69) 99999-4242",
   "data_nascimento": "1994-03-18",
   "genero": "nao_informado",
@@ -144,7 +144,7 @@
 - **Requisicao:** `GET /api/pacientes?nome=Paciente Relatorio`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** SELECT paginado com ILIKE; nao altera dados.
-- **Verificacao no banco:** encontrados no banco: 2
+- **Verificacao no banco:** encontrados no banco: 1
 
 **Resposta recebida**
 
@@ -154,36 +154,22 @@
     {
       "id_paciente": 6,
       "nome": "Paciente Relatorio de Testes",
-      "cpf": "19420195724",
-      "email": "relatorio.19420195724@email.com",
+      "cpf": "33235992413",
+      "email": "relatorio.33235992413@email.com",
       "telefone": "(69) 99999-4242",
       "data_nascimento": "1994-03-18",
       "genero": "nao_informado",
       "cidade": "Porto Velho",
       "observacoes": "Registro criado pelo script de relatorio de testes.",
       "status": "ativo",
-      "criado_em": "2026-11-07T22:36:49.273511-04:00",
-      "atualizado_em": null
-    },
-    {
-      "id_paciente": 11,
-      "nome": "Paciente Relatorio de Testes",
-      "cpf": "55529237070",
-      "email": "relatorio.55529237070@email.com",
-      "telefone": "(69) 99999-4242",
-      "data_nascimento": "1994-03-18",
-      "genero": "nao_informado",
-      "cidade": "Porto Velho",
-      "observacoes": "Registro criado pelo script de relatorio de testes.",
-      "status": "ativo",
-      "criado_em": "2026-11-08T20:45:45.548994-04:00",
+      "criado_em": "2026-11-09T23:00:38.673767-04:00",
       "atualizado_em": null
     }
   ],
   "paginacao": {
     "pagina": 1,
     "por_pagina": 10,
-    "total": 2,
+    "total": 1,
     "total_paginas": 1
   }
 }
@@ -191,7 +177,7 @@
 
 ### 3.5 Obter paciente por id
 
-- **Requisicao:** `GET /api/pacientes/11`
+- **Requisicao:** `GET /api/pacientes/6`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** SELECT por chave primaria.
 
@@ -199,24 +185,24 @@
 
 ```json
 {
-  "id_paciente": 11,
+  "id_paciente": 6,
   "nome": "Paciente Relatorio de Testes",
-  "cpf": "55529237070",
-  "email": "relatorio.55529237070@email.com",
+  "cpf": "33235992413",
+  "email": "relatorio.33235992413@email.com",
   "telefone": "(69) 99999-4242",
   "data_nascimento": "1994-03-18",
   "genero": "nao_informado",
   "cidade": "Porto Velho",
   "observacoes": "Registro criado pelo script de relatorio de testes.",
   "status": "ativo",
-  "criado_em": "2026-11-08T20:45:45.548994-04:00",
+  "criado_em": "2026-11-09T23:00:38.673767-04:00",
   "atualizado_em": null
 }
 ```
 
 ### 3.6 Atualizar cidade do paciente (PUT parcial)
 
-- **Requisicao:** `PUT /api/pacientes/11`
+- **Requisicao:** `PUT /api/pacientes/6`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** UPDATE em pacientes; trigger preenche atualizado_em; auditoria grava UPDATE.
 - **Verificacao no banco:** cidade atual: Ji-Parana
@@ -235,28 +221,28 @@
 {
   "mensagem": "Paciente atualizado com sucesso.",
   "dados": {
-    "id_paciente": 11,
+    "id_paciente": 6,
     "nome": "Paciente Relatorio de Testes",
-    "cpf": "55529237070",
-    "email": "relatorio.55529237070@email.com",
+    "cpf": "33235992413",
+    "email": "relatorio.33235992413@email.com",
     "telefone": "(69) 99999-4242",
     "data_nascimento": "1994-03-18",
     "genero": "nao_informado",
     "cidade": "Ji-Parana",
     "observacoes": "Registro criado pelo script de relatorio de testes.",
     "status": "ativo",
-    "criado_em": "2026-11-08T20:45:45.548994-04:00",
-    "atualizado_em": "2026-11-08T20:45:46.094201-04:00"
+    "criado_em": "2026-11-09T23:00:38.673767-04:00",
+    "atualizado_em": "2026-11-09T23:00:39.065274-04:00"
   }
 }
 ```
 
 ### 3.7 Rejeitar CPF invalido no PUT
 
-- **Requisicao:** `PUT /api/pacientes/11`
+- **Requisicao:** `PUT /api/pacientes/6`
 - **Status HTTP:** `422` (esperado `422`)
 - **Comportamento no banco:** Validacao do Flask interrompe antes do banco; nenhuma alteracao.
-- **Verificacao no banco:** CPF permanece: 55529237070
+- **Verificacao no banco:** CPF permanece: 33235992413
 
 **Payload enviado**
 
@@ -287,9 +273,9 @@
 
 ```json
 {
-  "nome": "Psicologo Relatorio 28153",
-  "crp": "06/28153",
-  "email": "psi.relatorio.28153@email.com",
+  "nome": "Psicologo Relatorio 53126",
+  "crp": "06/53126",
+  "email": "psi.relatorio.53126@email.com",
   "especialidade": "Psicologia Clinica",
   "valor_sessao": 195.0
 }
@@ -301,14 +287,14 @@
 {
   "mensagem": "Psicologo cadastrado com sucesso.",
   "dados": {
-    "id_psicologo": 6,
-    "nome": "Psicologo Relatorio 28153",
-    "crp": "06/28153",
-    "email": "psi.relatorio.28153@email.com",
+    "id_psicologo": 4,
+    "nome": "Psicologo Relatorio 53126",
+    "crp": "06/53126",
+    "email": "psi.relatorio.53126@email.com",
     "especialidade": "Psicologia Clinica",
     "valor_sessao": 195.0,
     "ativo": true,
-    "criado_em": "2026-11-08T20:45:46.205011-04:00"
+    "criado_em": "2026-11-09T23:00:39.192495-04:00"
   }
 }
 ```
@@ -325,14 +311,14 @@
 {
   "dados": [
     {
-      "id_psicologo": 6,
-      "nome": "Psicologo Relatorio 28153",
-      "crp": "06/28153",
-      "email": "psi.relatorio.28153@email.com",
+      "id_psicologo": 4,
+      "nome": "Psicologo Relatorio 53126",
+      "crp": "06/53126",
+      "email": "psi.relatorio.53126@email.com",
       "especialidade": "Psicologia Clinica",
       "valor_sessao": 195.0,
       "ativo": true,
-      "criado_em": "2026-11-08T20:45:46.205011-04:00"
+      "criado_em": "2026-11-09T23:00:39.192495-04:00"
     }
   ],
   "paginacao": {
@@ -355,9 +341,9 @@
 
 ```json
 {
-  "id_paciente": 11,
-  "id_psicologo": 6,
-  "data_hora": "2027-01-07T14:00:00",
+  "id_paciente": 6,
+  "id_psicologo": 4,
+  "data_hora": "2027-01-08T14:00:00",
   "duracao_minutos": 50,
   "modalidade": "online",
   "observacoes": "Consulta criada pelo relatorio de testes."
@@ -368,21 +354,21 @@
 
 ```json
 {
-  "mensagem": "Consulta agendada com sucesso (id 11).",
+  "mensagem": "Consulta agendada com sucesso (id 8).",
   "dados": {
-    "id_consulta": 11,
-    "data_hora": "2027-01-07T14:00:00-04:00",
+    "id_consulta": 8,
+    "data_hora": "2027-01-08T14:00:00-04:00",
     "duracao_minutos": 50,
     "modalidade": "online",
     "status": "agendada",
     "valor": 195.0,
     "observacoes": "Consulta criada pelo relatorio de testes.",
-    "id_paciente": 11,
+    "id_paciente": 6,
     "paciente": "Paciente Relatorio de Testes",
-    "paciente_email": "relatorio.55529237070@email.com",
-    "id_psicologo": 6,
-    "psicologo": "Psicologo Relatorio 28153",
-    "crp": "06/28153",
+    "paciente_email": "relatorio.33235992413@email.com",
+    "id_psicologo": 4,
+    "psicologo": "Psicologo Relatorio 53126",
+    "crp": "06/53126",
     "especialidade": "Psicologia Clinica"
   }
 }
@@ -399,9 +385,9 @@
 
 ```json
 {
-  "id_paciente": 11,
-  "id_psicologo": 6,
-  "data_hora": "2027-01-07T14:00:00",
+  "id_paciente": 6,
+  "id_psicologo": 4,
+  "data_hora": "2027-01-08T14:00:00",
   "duracao_minutos": 50,
   "modalidade": "online",
   "observacoes": "Consulta criada pelo relatorio de testes."
@@ -429,7 +415,7 @@
 
 ```json
 {
-  "id_consulta": 11,
+  "id_consulta": 8,
   "humor": 8,
   "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
   "encaminhamento": "Manter sessoes semanais."
@@ -440,18 +426,18 @@
 
 ```json
 {
-  "mensagem": "Evolucao registrada com sucesso (id 7).",
+  "mensagem": "Evolucao registrada com sucesso (id 4).",
   "dados": {
-    "id_evolucao": 7,
-    "id_consulta": 11,
-    "id_paciente": 11,
+    "id_evolucao": 4,
+    "id_consulta": 8,
+    "id_paciente": 6,
     "paciente": "Paciente Relatorio de Testes",
-    "psicologo": "Psicologo Relatorio 28153",
-    "data_hora": "2027-01-07T14:00:00-04:00",
+    "psicologo": "Psicologo Relatorio 53126",
+    "data_hora": "2027-01-08T14:00:00-04:00",
     "humor": 8,
     "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
     "encaminhamento": "Manter sessoes semanais.",
-    "criado_em": "2026-11-08T20:45:46.888818-04:00"
+    "criado_em": "2026-11-09T23:00:39.692381-04:00"
   }
 }
 ```
@@ -467,7 +453,7 @@
 
 ```json
 {
-  "id_consulta": 11,
+  "id_consulta": 8,
   "humor": 8,
   "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
   "encaminhamento": "Manter sessoes semanais."
@@ -496,24 +482,24 @@
 {
   "dados": [
     {
-      "id_consulta": 11,
-      "data_hora": "2027-01-07T14:00:00-04:00",
+      "id_consulta": 8,
+      "data_hora": "2027-01-08T14:00:00-04:00",
       "duracao_minutos": 50,
       "modalidade": "online",
       "status": "agendada",
       "valor": 195.0,
       "observacoes": "Consulta criada pelo relatorio de testes.",
-      "id_paciente": 11,
+      "id_paciente": 6,
       "paciente": "Paciente Relatorio de Testes",
-      "paciente_email": "relatorio.55529237070@email.com",
-      "id_psicologo": 6,
-      "psicologo": "Psicologo Relatorio 28153",
-      "crp": "06/28153",
+      "paciente_email": "relatorio.33235992413@email.com",
+      "id_psicologo": 4,
+      "psicologo": "Psicologo Relatorio 53126",
+      "crp": "06/53126",
       "especialidade": "Psicologia Clinica"
     },
     {
       "id_consulta": 7,
-      "data_hora": "2026-11-10T17:00:00-04:00",
+      "data_hora": "2026-11-14T17:00:00-04:00",
       "duracao_minutos": 50,
       "modalidade": "presencial",
       "status": "agendada",
@@ -529,7 +515,7 @@
     },
     {
       "id_consulta": 5,
-      "data_hora": "2026-11-08T16:00:00-04:00",
+      "data_hora": "2026-11-12T16:00:00-04:00",
       "duracao_minutos": 50,
       "modalidade": "online",
       "status": "agendada",
@@ -545,7 +531,7 @@
     },
     {
       "id_consulta": 4,
-      "data_hora": "2026-11-07T09:00:00-04:00",
+      "data_hora": "2026-11-11T09:00:00-04:00",
       "duracao_minutos": 60,
       "modalidade": "presencial",
       "status": "agendada",
@@ -571,7 +557,7 @@
 
 ### 3.15 Listar evolucoes da consulta
 
-- **Requisicao:** `GET /api/evolucoes?id_consulta=11`
+- **Requisicao:** `GET /api/evolucoes?id_consulta=8`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** SELECT na view vw_evolucoes (JOIN de 4 tabelas).
 
@@ -581,16 +567,16 @@
 {
   "dados": [
     {
-      "id_evolucao": 7,
-      "id_consulta": 11,
-      "id_paciente": 11,
+      "id_evolucao": 4,
+      "id_consulta": 8,
+      "id_paciente": 6,
       "paciente": "Paciente Relatorio de Testes",
-      "psicologo": "Psicologo Relatorio 28153",
-      "data_hora": "2027-01-07T14:00:00-04:00",
+      "psicologo": "Psicologo Relatorio 53126",
+      "data_hora": "2027-01-08T14:00:00-04:00",
       "humor": 8,
       "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
       "encaminhamento": "Manter sessoes semanais.",
-      "criado_em": "2026-11-08T20:45:46.888818-04:00"
+      "criado_em": "2026-11-09T23:00:39.692381-04:00"
     }
   ],
   "paginacao": {
@@ -604,7 +590,7 @@
 
 ### 3.16 Resumo do paciente (fn_resumo_paciente)
 
-- **Requisicao:** `GET /api/pacientes/11/resumo`
+- **Requisicao:** `GET /api/pacientes/6/resumo`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** Funcao tabular agrega consultas, realizadas, agendadas e humor medio.
 - **Verificacao no banco:** total de consultas: 1
@@ -613,13 +599,13 @@
 
 ```json
 {
-  "id_paciente": 11,
+  "id_paciente": 6,
   "nome": "Paciente Relatorio de Testes",
   "total_consultas": 1,
   "consultas_realizadas": 0,
   "consultas_agendadas": 1,
   "humor_medio": 8.0,
-  "ultima_consulta": "2027-01-07T14:00:00-04:00"
+  "ultima_consulta": "2027-01-08T14:00:00-04:00"
 }
 ```
 
@@ -641,7 +627,7 @@
   "dados": [
     {
       "id_consulta": 6,
-      "data_hora": "2026-10-16T11:00:00-04:00",
+      "data_hora": "2026-10-20T11:00:00-04:00",
       "status": "cancelada",
       "modalidade": "presencial",
       "valor": 220.0,
@@ -655,7 +641,7 @@
     },
     {
       "id_consulta": 1,
-      "data_hora": "2026-10-24T14:00:00-04:00",
+      "data_hora": "2026-10-28T14:00:00-04:00",
       "status": "realizada",
       "modalidade": "presencial",
       "valor": 180.0,
@@ -669,7 +655,7 @@
     },
     {
       "id_consulta": 2,
-      "data_hora": "2026-10-27T10:00:00-04:00",
+      "data_hora": "2026-10-31T10:00:00-04:00",
       "status": "realizada",
       "modalidade": "online",
       "valor": 200.0,
@@ -683,7 +669,7 @@
     },
     {
       "id_consulta": 3,
-      "data_hora": "2026-11-01T15:00:00-04:00",
+      "data_hora": "2026-11-05T15:00:00-04:00",
       "status": "realizada",
       "modalidade": "presencial",
       "valor": 180.0,
@@ -697,7 +683,7 @@
     },
     {
       "id_consulta": 4,
-      "data_hora": "2026-11-07T09:00:00-04:00",
+      "data_hora": "2026-11-11T09:00:00-04:00",
       "status": "agendada",
       "modalidade": "presencial",
       "valor": 220.0,
@@ -711,7 +697,7 @@
     },
     {
       "id_consulta": 5,
-      "data_hora": "2026-11-08T16:00:00-04:00",
+      "data_hora": "2026-11-12T16:00:00-04:00",
       "status": "agendada",
       "modalidade": "online",
       "valor": 200.0,
@@ -725,7 +711,7 @@
     },
     {
       "id_consulta": 7,
-      "data_hora": "2026-11-10T17:00:00-04:00",
+      "data_hora": "2026-11-14T17:00:00-04:00",
       "status": "agendada",
       "modalidade": "presencial",
       "valor": 180.0,
@@ -738,15 +724,15 @@
       "relato": null
     },
     {
-      "id_consulta": 11,
-      "data_hora": "2027-01-07T14:00:00-04:00",
+      "id_consulta": 8,
+      "data_hora": "2027-01-08T14:00:00-04:00",
       "status": "agendada",
       "modalidade": "online",
       "valor": 195.0,
-      "id_paciente": 11,
+      "id_paciente": 6,
       "paciente": "Paciente Relatorio de Testes",
-      "id_psicologo": 6,
-      "psicologo": "Psicologo Relatorio 28153",
+      "id_psicologo": 4,
+      "psicologo": "Psicologo Relatorio 53126",
       "especialidade": "Psicologia Clinica",
       "humor": 8,
       "relato": "Paciente relatou melhora significativa do sono e da ansiedade."
@@ -766,7 +752,7 @@
 ```json
 {
   "totais": {
-    "pacientes_ativos": 7,
+    "pacientes_ativos": 6,
     "psicologos_ativos": 4,
     "consultas_agendadas": 4,
     "consultas_realizadas": 3,
@@ -795,7 +781,7 @@
 
 ### 3.19 Excluir consulta (CASCADE na evolucao)
 
-- **Requisicao:** `DELETE /api/consultas/11`
+- **Requisicao:** `DELETE /api/consultas/8`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** DELETE em consultas; FK ON DELETE CASCADE remove a evolucao.
 - **Verificacao no banco:** evolucoes restantes: 0
@@ -810,7 +796,7 @@
 
 ### 3.20 Excluir paciente
 
-- **Requisicao:** `DELETE /api/pacientes/11`
+- **Requisicao:** `DELETE /api/pacientes/6`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** DELETE em pacientes; auditoria grava DELETE.
 - **Verificacao no banco:** paciente restante: 0
@@ -825,7 +811,7 @@
 
 ### 3.21 Excluir psicologo
 
-- **Requisicao:** `DELETE /api/psicologos/6`
+- **Requisicao:** `DELETE /api/psicologos/4`
 - **Status HTTP:** `200` (esperado `200`)
 - **Comportamento no banco:** DELETE em psicologos (sem consultas vinculadas).
 - **Verificacao no banco:** psicologo restante: 0
@@ -840,7 +826,7 @@
 
 ### 3.22 Buscar paciente removido (404)
 
-- **Requisicao:** `GET /api/pacientes/11`
+- **Requisicao:** `GET /api/pacientes/6`
 - **Status HTTP:** `404` (esperado `404`)
 - **Comportamento no banco:** Nenhuma linha encontrada; handler devolve JSON padronizado.
 

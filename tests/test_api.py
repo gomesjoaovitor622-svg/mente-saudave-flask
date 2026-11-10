@@ -281,3 +281,18 @@ def test_recursos_inexistentes(client):
         response = client.get(url)
         assert response.status_code == 404, url
         assert response.get_json()["erro"] is True
+
+
+def test_indice_de_endpoints(client):
+    """GET /api deve listar os endpoints em JSON e em HTML."""
+    resposta = client.get("/api")
+    assert resposta.status_code == 200
+    corpo = resposta.get_json()
+    assert corpo["total_endpoints"] >= 20
+    rotas = {item["rota"] for item in corpo["endpoints"]}
+    assert {"/api/health", "/api/pacientes", "/api/relatorios/resumo"} <= rotas
+
+    pagina = client.get("/api", headers={"Accept": "text/html"})
+    assert pagina.status_code == 200
+    assert b"/api/health" in pagina.data
+    assert b"Mente Saud" in pagina.data

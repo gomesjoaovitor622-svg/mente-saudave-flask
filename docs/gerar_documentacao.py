@@ -17,6 +17,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas as pdfcanvas
 from reportlab.platypus import (
     Image,
     KeepTogether,
@@ -30,6 +31,7 @@ from reportlab.platypus import (
     TableStyle,
     XPreformatted,
 )
+from reportlab.platypus.tableofcontents import TableOfContents
 
 BASE = Path(__file__).resolve().parent
 IMG_DIR = BASE / "img"
@@ -296,6 +298,15 @@ def _styles():
             alignment=TA_CENTER,
             textColor=GRAY,
         ),
+        "cover_name": ParagraphStyle(
+            "CoverName",
+            parent=base["BodyText"],
+            fontName="Arial-Bold",
+            fontSize=13,
+            leading=18,
+            alignment=TA_CENTER,
+            textColor=TEAL_DARK,
+        ),
     }
 
 
@@ -365,17 +376,67 @@ def _public_url() -> str:
     return "https://&lt;subdominio&gt;.trycloudflare.com (link temporario)"
 
 
+class DocComSumario(SimpleDocTemplate):
+    """Documento que registra os títulos H1/H2 para montar o sumário.
+
+    O ``multiBuild`` executa a montagem duas vezes: na primeira descobre em que
+    página cada título caiu; na segunda preenche o ``TableOfContents`` com os
+    números corretos. Sem isso, o sumário ficaria com páginas erradas.
+    """
+
+    def afterFlowable(self, flowable):
+        if not isinstance(flowable, Paragraph):
+            return
+        style = flowable.style.name
+        if style not in {"H1", "H2"}:
+            return
+        text = flowable.getPlainText()
+        if text.strip().lower() == "sumário":
+            return
+        level = 0 if style == "H1" else 1
+        self.notify("TOCEntry", (level, text, self.page))
+
+
+class CanvasNumerado(pdfcanvas.Canvas):
+    """Canvas que imprime "Página X de Y" no rodapé de todas as páginas."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._estados = []
+
+    def showPage(self):
+        self._estados.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        total = len(self._estados)
+        for estado in self._estados:
+            self.__dict__.update(estado)
+            self._imprime_numero(total)
+            super().showPage()
+        super().save()
+
+    def _imprime_numero(self, total: int):
+        self.saveState()
+        self.setFont("Arial", 8)
+        self.setFillColor(GRAY)
+        self.drawCentredString(
+            A4[0] / 2, 1.1 * cm, f"Página {self._pageNumber} de {total}"
+        )
+        self.restoreState()
+
+
 def build_pdf():
     styles = _styles()
-    doc = SimpleDocTemplate(
+    doc = DocComSumario(
         str(PDF_PATH),
         pagesize=A4,
         leftMargin=2.1 * cm,
         rightMargin=2.1 * cm,
         topMargin=2.0 * cm,
         bottomMargin=1.8 * cm,
-        title="Documentacao - Mente Saudavel",
-        author="Equipe Mente Saudavel - IFRO",
+        title="Documentação — Mente Saudável",
+        author="Jhennyfér e João Vitor — IFRO",
         subject="Projeto integrador de Desenvolvimento Web III e Banco de Dados II",
     )
 
@@ -384,14 +445,15 @@ def build_pdf():
         if document.page > 1:
             canvas.setFont("Arial", 7.5)
             canvas.setFillColor(GRAY)
-            canvas.drawString(2.1 * cm, A4[1] - 1.35 * cm, "Mente Saudavel — Documentacao do sistema")
+            canvas.drawString(
+                2.1 * cm,
+                A4[1] - 1.35 * cm,
+                "Mente Saudável — Documentação do sistema",
+            )
             canvas.drawRightString(A4[0] - 2.1 * cm, A4[1] - 1.35 * cm, "IFRO · 2026")
             canvas.setStrokeColor(LINE)
             canvas.setLineWidth(0.6)
             canvas.line(2.1 * cm, A4[1] - 1.55 * cm, A4[0] - 2.1 * cm, A4[1] - 1.55 * cm)
-        canvas.setFont("Arial", 8)
-        canvas.setFillColor(GRAY)
-        canvas.drawCentredString(A4[0] / 2, 1.1 * cm, f"Pagina {document.page}")
         canvas.restoreState()
 
     story = []
@@ -431,11 +493,11 @@ def build_pdf():
     story += [cover_table, Spacer(1, 2.2 * cm)]
 
     story += [
-        _p("Equipe", styles["cell_bold"]),
+        _p("Integrantes", styles["cell_bold"]),
         Spacer(1, 0.25 * cm),
-        _p("Jhennyfér", styles["small"]),
-        Spacer(1, 0.35 * cm),
-        _p("João Vitor", styles["small"]),
+        _p("Jhennyfér", styles["cover_name"]),
+        Spacer(1, 0.2 * cm),
+        _p("João Vitor", styles["cover_name"]),
         Spacer(1, 0.9 * cm),
         _p(
             "Dupla responsável pelo desenvolvimento do projeto integrador.",
@@ -443,6 +505,32 @@ def build_pdf():
         ),
         PageBreak(),
     ]
+
+    # ------------------------------ Sumário --------------------------------
+    story.append(_p("Sumário", styles["h1"]))
+    toc = TableOfContents()
+    toc.levelStyles = [
+        ParagraphStyle(
+            "TOC1",
+            fontName="Arial-Bold",
+            fontSize=10.5,
+            leading=15,
+            textColor=TEAL_DARK,
+            leftIndent=0,
+            firstLineIndent=0,
+            spaceBefore=2,
+        ),
+        ParagraphStyle(
+            "TOC2",
+            fontName="Arial",
+            fontSize=9.5,
+            leading=13,
+            textColor=INK,
+            leftIndent=14,
+            firstLineIndent=0,
+        ),
+    ]
+    story += [toc, PageBreak()]
 
     # ---------------------------- 1. Introducao ----------------------------
     story.append(_p("1. Introdução", styles["h1"]))
@@ -540,6 +628,39 @@ def build_pdf():
         )
     )
 
+    story.append(_p("4.1 Estrutura do repositório", styles["h2"]))
+    repo_tree = """mente-saudave-flask/
+├── app/                 # API Flask (blueprints, validação, acesso ao banco)
+│   ├── routes/          # pacientes, psicólogos, consultas, evoluções, relatórios
+│   ├── static/          # CSS e JavaScript do painel
+│   └── templates/       # index.html (painel web)
+├── database/            # 00_create_database, 01_schema, 02_views, 03_procedures, 04_seed
+├── docs/                # PDF, relatório de testes, gerador e imagens
+├── postman/             # coleção da API
+├── scripts/             # relatório de testes, geração e verificação do ZIP
+├── tests/               # validadores, API e integridade do banco
+├── app.py               # ponto de entrada oficial
+├── run.py               # compatibilidade (delega para app.py)
+├── requirements.txt
+└── README.md"""
+    story.append(
+        XPreformatted(
+            repo_tree,
+            ParagraphStyle(
+                "Tree",
+                fontName="Courier",
+                fontSize=7.2,
+                leading=9.4,
+                textColor=colors.HexColor("#334155"),
+                backColor=colors.HexColor("#f8fafc"),
+                borderColor=LINE,
+                borderWidth=0.5,
+                borderPadding=6,
+                spaceAfter=8,
+            ),
+        )
+    )
+
     # --------------------------- 5. Modelo de dados ------------------------
     story.append(_p("5. Modelo de dados", styles["h1"]))
     story.append(
@@ -596,7 +717,7 @@ def build_pdf():
     story.append(_p("5.2 Check constraints", styles["h2"]))
     story.append(
         _p(
-            "Foram implementadas mais de 20 check constraints, entre elas: "
+            "Foram implementadas 18 check constraints nomeadas, entre elas: "
             "<font name='Courier'>ck_pacientes_cpf_formato</font> (CPF com 11 "
             "dígitos), <font name='Courier'>ck_pacientes_nascimento</font> (data entre "
             "1900 e a data atual), <font name='Courier'>ck_pacientes_status</font>, "
@@ -612,7 +733,27 @@ def build_pdf():
         )
     )
 
-    story.append(_p("5.3 Comentários das colunas no script do banco", styles["h2"]))
+    story.append(_p("5.3 Objetos do banco de dados", styles["h2"]))
+    story.append(
+        _table(
+            [
+                ["Objeto", "Qtd.", "Observação"],
+                ["Tabelas", "5", "psicologos, pacientes, consultas, evolucoes e auditoria_pacientes"],
+                ["CHECK constraints", "18", "CPF, CRP, datas, status, duração, modalidade, humor e relato mínimo"],
+                ["Chaves estrangeiras", "3", "duas em consultas e uma em evolucoes"],
+                ["Views", "3", "agenda completa, evoluções e relatório de atendimentos"],
+                ["Stored procedures", "4", "cadastro, agendamento, evolução e relatório com REFCURSOR"],
+                ["Funções", "2", "resumo do paciente e relatório em formato tabular"],
+                ["Triggers", "2", "auditoria de pacientes em INSERT/UPDATE/DELETE"],
+                ["Índices", "6", "inclui o índice único parcial que evita double-booking"],
+            ],
+            [3.6 * cm, 1.6 * cm, 11.4 * cm],
+            styles,
+        )
+    )
+    story.append(Spacer(1, 0.25 * cm))
+
+    story.append(_p("5.4 Comentários das colunas no script do banco", styles["h2"]))
     story.append(
         _p(
             "Conforme exigido, o script <font name='Courier'>database/01_schema.sql</font> "
@@ -749,6 +890,22 @@ COMMIT;"""
         )
     )
 
+    story.append(_p("7.1 Segurança e boas práticas", styles["h2"]))
+    story.append(
+        _bullets(
+            [
+                "<b>Credenciais fora do código:</b> host, porta, usuário e senha vêm de variáveis de ambiente (<font name='Courier'>.env</font>), que não é versionado.",
+                "<b>Consultas parametrizadas:</b> todos os valores passam por <font name='Courier'>%s</font> no psycopg2, eliminando SQL injection; o nome da procedure é constante no código.",
+                "<b>Validação em três camadas:</b> front-end, API (CPF, e-mail, datas, enums) e banco (CHECK, UNIQUE, FK e triggers).",
+                "<b>Erros sem vazamento:</b> detalhes técnicos do PostgreSQL vão para o log; o cliente recebe JSON padronizado com status semântico.",
+                "<b>CORS e preflight:</b> o painel e o Postman podem consumir a API de outra origem; <font name='Courier'>OPTIONS</font> responde 204.",
+                "<b>Conexão por requisição:</b> uma conexão por request em <font name='Courier'>flask.g</font>, fechada no <font name='Courier'>teardown</font>, evitando vazamento.",
+                "<b>Integridade no banco:</b> constraints, índice único parcial e triggers garantem as regras mesmo fora da API.",
+            ],
+            styles,
+        )
+    )
+
     # ----------------------------- 8. Testes ------------------------------
     story.append(PageBreak())
     story.append(_p("8. Testes e evidências", styles["h1"]))
@@ -869,7 +1026,7 @@ COMMIT;"""
     story.append(_p("8.3 Testes automatizados", styles["h2"]))
     story.append(
         _p(
-            "A suíte automatizada reúne <b>55 testes</b> distribuídos em "
+            "A suíte automatizada reúne <b>56 testes</b> distribuídos em "
             "<font name='Courier'>tests/test_validators.py</font> (validações "
             "unitárias), <font name='Courier'>tests/test_api.py</font> (integração "
             "dos endpoints) e <font name='Courier'>tests/test_constraints.py</font> "
@@ -882,7 +1039,7 @@ COMMIT;"""
         XPreformatted(
             "$ pytest -q\n"
             ".......................................................  [100%]\n"
-            "55 passed in 8.50s",
+            "56 passed in 5.66s",
             ParagraphStyle(
                 "Code3",
                 fontName="Courier",
@@ -906,7 +1063,7 @@ COMMIT;"""
                 ["Verificação", "Resultado"],
                 ["Testes HTTP executados contra a API real", "22 de 22 com o status esperado"],
                 ["CHECK constraints testadas por SQL direto", "8 de 8 rejeitaram o dado inválido"],
-                ["Suíte automatizada (pytest)", "55 testes aprovados"],
+                ["Suíte automatizada (pytest)", "56 testes aprovados"],
                 ["Cobertura funcional", "CRUD, listagens, stored procedures, views e relatórios"],
                 ["Efeito no banco", "Conferido por consulta direta após cada operação"],
             ],
@@ -956,10 +1113,11 @@ COMMIT;"""
     story.append(
         _bullets(
             [
-                "Criar o banco e executar os scripts na ordem 00, 01, 02, 03 e 04 da pasta <font name='Courier'>database/</font>.",
-                "Copiar <font name='Courier'>.env.example</font> para <font name='Courier'>.env</font> e configurar usuário e senha do PostgreSQL.",
-                "Criar o ambiente virtual e instalar as dependências de <font name='Courier'>requirements.txt</font>.",
-                "Executar <font name='Courier'>python app.py</font> e acessar <font name='Courier'>http://localhost:5000</font>.",
+                "No VS Code, abrir a pasta e executar uma única vez a tarefa <b>Projeto: primeiro uso</b>: ela cria o <font name='Courier'>.venv</font>, instala as dependências, cria o cluster PostgreSQL exclusivo do projeto na porta 55433 e gera o <font name='Courier'>.env</font>.",
+                "Pressionar <b>F5</b> (configuração <b>API: depurar (Flask)</b>) ou executar a tarefa <b>API: executar</b>; o VS Code sobe o banco e o Flask juntos.",
+                "Alternativamente, executar manualmente os scripts 00 a 04 da pasta <font name='Courier'>database/</font>, copiar <font name='Courier'>.env.example</font> para <font name='Courier'>.env</font> e rodar <font name='Courier'>python app.py</font>.",
+                "Acessar <font name='Courier'>http://localhost:5000</font> e a lista de endpoints em <font name='Courier'>http://localhost:5000/api</font>.",
+                "Disparar requisições pelo arquivo <font name='Courier'>api.http</font> (extensão REST Client) ou pela coleção do Postman.",
             ],
             styles,
         )
@@ -978,6 +1136,7 @@ COMMIT;"""
             [
                 ["Ambiente", "Endereço"],
                 ["Local (desenvolvimento)", "http://localhost:5000"],
+                ["Índice de endpoints", "http://localhost:5000/api"],
                 ["API / health check", "http://localhost:5000/api/health"],
                 ["Demonstração pública", _public_url()],
             ],
@@ -1026,6 +1185,8 @@ COMMIT;"""
         _p(
             "Exemplo com quatro integrantes (João, Maria, Pedro e Ana): "
             "<font name='Courier'>Joao_Maria_Pedro_Ana.Mente_Saudavel.zip</font>. "
+            "Para esta entrega, o pacote é "
+            "<font name='Courier'>Jhennyfer_Joao.Mente_Saudavel.zip</font>. "
             "O script <font name='Courier'>scripts/gerar_zip.py</font> monta o pacote "
             "automaticamente e valida o nome:",
             styles["body"],
@@ -1033,8 +1194,10 @@ COMMIT;"""
     )
     story.append(
         XPreformatted(
-            "python scripts/gerar_zip.py --membros \"Joao Maria Pedro Ana\"\n"
-            "# gera: Joao_Maria_Pedro_Ana.Mente_Saudavel.zip",
+            "python scripts/gerar_zip.py --membros \"Jhennyfer Joao\" --saida entrega\n"
+            "# gera: entrega/Jhennyfer_Joao.Mente_Saudavel.zip\n"
+            "python scripts/verificar_entrega.py\n"
+            "# confere PDF, ZIP, nomes e estrutura",
             ParagraphStyle(
                 "Code5",
                 fontName="Courier",
@@ -1054,12 +1217,12 @@ COMMIT;"""
             [
                 ["Incluir no ZIP", "Excluir do ZIP"],
                 [
-                    "app/, database/, docs/, postman/, scripts/, tests/",
+                    "app/, database/, docs/, postman/, scripts/, tests/, .vscode/",
                     ".venv/, .git/, __pycache__/, .pytest_cache/",
                 ],
                 [
-                    "app.py, run.py, requirements.txt, requirements-dev.txt",
-                    ".env (contém senhas), *.pyc, arquivos temporários",
+                    "app.py, run.py, api.http, requirements.txt, requirements-dev.txt",
+                    ".env (contém senhas), *.pyc, *.zip, arquivos temporários",
                 ],
                 [
                     ".env.example, README.md, .gitignore",
@@ -1085,7 +1248,15 @@ COMMIT;"""
         )
     )
 
-    doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
+    # multiBuild monta o documento duas vezes: a primeira descobre as paginas
+    # dos titulos e a segunda preenche o sumario. CanvasNumerado acrescenta
+    # "Pagina X de Y" no rodape.
+    doc.multiBuild(
+        story,
+        onFirstPage=on_page,
+        onLaterPages=on_page,
+        canvasmaker=CanvasNumerado,
+    )
 
 
 if __name__ == "__main__":

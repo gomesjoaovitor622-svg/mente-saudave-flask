@@ -96,6 +96,64 @@ mente-saudave-flask/
 
 ---
 
+## 🖥️ Abrir no VS Code (recomendado)
+
+O projeto já vem com tarefas, depuração e extensões recomendadas na pasta
+`.vscode/`. O banco local é um **cluster PostgreSQL exclusivo do projeto**, na
+porta **55433**, que não interfere no PostgreSQL já instalado na máquina
+(porta 5432) nem exige saber a senha dele.
+
+1. Abra a pasta do projeto no VS Code:
+
+   ```powershell
+   code .
+   ```
+
+2. Aceite as extensões recomendadas (Python, Pylance, SQLTools e REST Client)
+   quando o VS Code perguntar, ou abra **Extensões → `@recommended`**.
+
+3. Execute a tarefa **`Projeto: primeiro uso`** uma única vez
+   (`Ctrl+Shift+P` → **Tasks: Run Task**). Ela cria o `.venv`, instala as
+   dependências, cria o cluster local, carrega os scripts SQL e gera o `.env`.
+
+4. Pressione **F5** (configuração **API: depurar (Flask)**) ou execute a tarefa
+   **`API: executar`**. O VS Code sobe o PostgreSQL local e o Flask juntos.
+
+5. Abra:
+
+   - Painel: <http://localhost:5000>
+   - **Lista de endpoints: <http://localhost:5000/api>**
+   - Health check: <http://localhost:5000/api/health>
+
+### Tarefas disponíveis
+
+| Tarefa | O que faz |
+|--------|-----------|
+| `Projeto: preparar ambiente` | Cria o `.venv` e instala `requirements-dev.txt` |
+| `Projeto: primeiro uso` | Ambiente + cluster PostgreSQL + scripts + `.env` |
+| `Banco: configurar` | Cria o cluster e carrega os scripts SQL |
+| `Banco: iniciar` / `Banco: parar` | Liga/desliga o PostgreSQL local (porta 55433) |
+| `Banco: status` | Mostra se o cluster está no ar |
+| `Banco: recriar (apaga os dados)` | Recria o banco do zero e recarrega o seed |
+| `API: executar` | Sobe o banco e o Flask em <http://localhost:5000> |
+| `API: abrir lista de endpoints` | Abre `/api` no navegador |
+| `Testes: executar` | Roda a suíte completa no banco de teste |
+| `Entrega: gerar PDF e ZIP` | Regenera a documentação e o pacote |
+| `Entrega: verificar` | Valida PDF, ZIP, nomes e estrutura |
+
+> O cluster fica em `%LOCALAPPDATA%\MenteSaudavel\pgdata` (fora do OneDrive),
+> com usuário `postgres` e senha `postgres`, apenas para este projeto.
+> Para usar outro PostgreSQL, basta editar o `.env`.
+
+### Testar os endpoints dentro do VS Code
+
+Abra o arquivo [`api.http`](api.http), instale a extensão **REST Client** se
+ainda não instalou e clique em **Send Request** acima de qualquer requisição.
+A coleção completa também está em
+[`postman/mente-saudavel.postman_collection.json`](postman/mente-saudavel.postman_collection.json).
+
+---
+
 ## 🚀 Como executar
 
 ### 1. Pré-requisitos
@@ -165,7 +223,7 @@ python app.py
 Enquanto o servidor Flask, o PostgreSQL e o túnel Cloudflare estiverem em
 execução na máquina de demonstração, o sistema pode ser acessado em:
 
-**<https://strategic-beam-kirk-mostly.trycloudflare.com>**
+**<https://unlike-add-peace-exist.trycloudflare.com>**
 
 O endereço também é gravado em [`docs/URL_PUBLICA.txt`](docs/URL_PUBLICA.txt)
 e usado na geração do PDF. Como é um túnel gratuito `trycloudflare.com`, ele
@@ -178,6 +236,7 @@ processos são encerrados.
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
+| GET | `/api` | **Índice navegável de todos os endpoints (HTML e JSON)** |
 | GET | `/api/health` | Status da API e do banco |
 | GET | `/api/pacientes` | Lista pacientes (`page`, `per_page`, `nome`, `status`, `cidade`) |
 | GET | `/api/pacientes/{id}` | Busca paciente por id |
@@ -253,7 +312,7 @@ Resposta `201 Created`:
 - **Normalização** — tabelas `psicologos`, `pacientes`, `consultas` e
   `evolucoes`, sem dados redundantes; a evolução referencia apenas a consulta.
 - **PKs e FKs** — todas as relações declaradas com `ON DELETE` definido.
-- **Check constraints** — mais de 20 regras (CPF, e-mail, datas, status,
+- **Check constraints** — 18 regras nomeadas (CPF, e-mail, datas, status,
   duração, humor, valor etc.).
 - **Stored procedures**:
   - `sp_criar_paciente` — usada no `POST /api/pacientes`;
@@ -271,7 +330,7 @@ Resposta `201 Created`:
 
 ## ✅ Testes
 
-A suíte possui **55 testes** e cobre validações unitárias, integração dos
+A suíte possui **56 testes** e cobre validações unitárias, integração dos
 endpoints e integridade do banco de dados.
 
 Testes unitários (não precisam de banco):
@@ -299,7 +358,7 @@ RUN_DB_TESTS=1 TEST_DB_NAME=mente_saudavel_test pytest -q
 Resultado esperado:
 
 ```text
-55 passed
+56 passed
 ```
 
 ### Evidências dos testes
@@ -358,9 +417,20 @@ Gere o pacote automaticamente com:
 python scripts/gerar_zip.py --membros "Joao Maria Pedro Ana"
 ```
 
-O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`
-e os arquivos da raiz, ignorando `.venv/`, `.git/`, caches, `.env` e arquivos
-temporários.
+Para esta entrega (Jhennyfér e João Vitor):
+
+```bash
+python scripts/gerar_zip.py --membros "Jhennyfer Joao" --saida entrega
+# gera: entrega/Jhennyfer_Joao.Mente_Saudavel.zip
+```
+
+O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`,
+`.vscode/`, `api.http` e os arquivos da raiz, ignorando `.venv/`, `.git/`,
+caches, `.env` e arquivos temporários. Depois de gerar, confira o pacote com:
+
+```bash
+python scripts/verificar_entrega.py
+```
 
 ---
 
