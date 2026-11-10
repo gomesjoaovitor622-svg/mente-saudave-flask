@@ -85,6 +85,14 @@
       "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
     },
     {
+      "label": "API: parar (porta 5000)",
+      "detail": "Encerra o processo que estiver ouvindo na porta 5000.",
+      "type": "shell",
+      "command": "$c = Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue; if ($c) { Stop-Process -Id $c.OwningProcess -Force; 'API parada.' } else { 'Nenhum processo na porta 5000.' }",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
       "label": "API: abrir painel no navegador",
       "type": "shell",
       "command": "Start-Process http://localhost:5000",
