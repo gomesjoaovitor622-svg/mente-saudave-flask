@@ -13,11 +13,11 @@ Os scripts foram escritos para **PostgreSQL 14+** e devem ser executados nesta o
 ## Execucao via psql
 
 ```bash
-psql -U postgres -f database/00_create_database.sql
-psql -U postgres -d mente_saudavel -f database/01_schema.sql
-psql -U postgres -d mente_saudavel -f database/02_views.sql
-psql -U postgres -d mente_saudavel -f database/03_procedures.sql
-psql -U postgres -d mente_saudavel -f database/04_seed.sql
+psql -U joaovitor -f database/00_create_database.sql
+psql -U joaovitor -d mente_saudavel -f database/01_schema.sql
+psql -U joaovitor -d mente_saudavel -f database/02_views.sql
+psql -U joaovitor -d mente_saudavel -f database/03_procedures.sql
+psql -U joaovitor -d mente_saudavel -f database/04_seed.sql
 ```
 
 ## Testando a procedure de relatorio (refcursor)

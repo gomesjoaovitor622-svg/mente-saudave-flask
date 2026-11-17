@@ -334,7 +334,7 @@ Cada entrega é revisada pelo outro integrante (duplo check).
 2. Aceitar as extensões recomendadas (Python, Pylance, SQLTools e REST Client).
 3. Executar uma vez a tarefa **`Projeto: primeiro uso`** (`Ctrl+Shift+P` →
    **Tasks: Run Task**). Ela cria o `.venv`, instala as dependências, cria um
-   cluster PostgreSQL exclusivo do projeto na porta **55433** e gera o `.env`.
+   banco PostgreSQL do projeto na porta **5432** e gera o `.env`.
 4. Pressionar **F5** (configuração **API: depurar (Flask)**) ou executar a
    tarefa **`API: executar`**.
 5. Abrir `http://localhost:5000` e a lista de endpoints em

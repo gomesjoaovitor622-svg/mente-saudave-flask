@@ -16,8 +16,8 @@ POR QUE UM CLUSTER PROPRIO?
 ---------------------------
 O PostgreSQL instalado no Windows costuma pedir uma senha definida na
 instalacao, que pode nao ser conhecida. Um cluster separado, na pasta de dados
-do usuario, usa a senha "postgres" apenas para o projeto e nao interfere em
-nenhum outro banco da maquina.
+do usuario, usa as credenciais definidas em ``DB_USER``/``DB_PASSWORD`` apenas
+para o projeto e nao interfere em nenhum outro banco da maquina.
 
 O cluster fica em ``%LOCALAPPDATA%\\MenteSaudavel\\pgdata`` (Windows) ou em
 ``~/.local/share/mente-saudavel/pgdata`` (Linux/macOS), fora do OneDrive, para
@@ -52,16 +52,25 @@ ENV_FILE = BASE_DIR / ".env"
 
 DB_NAME = "mente_saudavel"
 TEST_DB_NAME = "mente_saudavel_test"
-DB_USER = "postgres"
-DB_PASSWORD = "postgres"
-DEFAULT_PORT = 55433
+DB_USER = "joaovitor"
+DB_PASSWORD = "Joa1045.5"
+DEFAULT_PORT = 5432
+
+# Pasta dos binarios/cluster no Windows. Precisa ser um caminho somente ASCII,
+# porque o initdb nao aceita acentos no caminho (ver _data_dir).
+WINDOWS_BASE_DIR = Path(r"C:\MenteSaudavel")
 
 
 def _data_dir() -> Path:
-    """Pasta de dados do cluster local (fora do repositorio/OneDrive)."""
+    """Pasta de dados do cluster local (fora do repositorio/OneDrive).
+
+    No Windows a pasta precisa ter um caminho **somente ASCII**: o ``initdb``
+    monta um ``COPY ... FROM '<pasta do share>/sql_features.txt'`` e, se o
+    caminho tiver acentos (por exemplo ``C:\\Users\\Joao Vitor\\...``), o
+    comando falha com "invalid byte sequence for encoding UTF8".
+    """
     if os.name == "nt":
-        base = Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
-        return base / "MenteSaudavel" / "pgdata"
+        return WINDOWS_BASE_DIR / "pgdata"
     base = Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share"))
     return base / "mente-saudavel" / "pgdata"
 
@@ -74,6 +83,15 @@ def _find_bin(name: str) -> str:
 
     candidates: list[Path] = []
     if os.name == "nt":
+        # Binarios instalados pelo proprio projeto (versao portatil oficial),
+        # sem exigir administrador nem alterar o PATH do sistema.
+        candidates.append(WINDOWS_BASE_DIR / "pgsql" / "bin" / f"{name}.exe")
+        local = Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        for portable in (
+            local / "MenteSaudavel" / "pgsql",
+            BASE_DIR / "pgsql",
+        ):
+            candidates.append(portable / "bin" / f"{name}.exe")
         for root in (Path(r"C:\Program Files\PostgreSQL"), Path(r"C:\Program Files (x86)\PostgreSQL")):
             if root.exists():
                 candidates.extend(sorted(root.glob(f"*/bin/{name}.exe"), reverse=True))
@@ -145,6 +163,52 @@ def _pg_env(port: int) -> dict:
     }
 
 
+def _server_respondendo(port: int) -> bool:
+    """True se ja existe um PostgreSQL atendendo em 127.0.0.1:porta.
+
+    Isso acontece quando o PostgreSQL foi instalado como servico do Windows
+    (por exemplo ``postgresql-x64-18``). Nesse caso o projeto usa esse
+    servidor e nao cria um cluster proprio na mesma porta.
+    """
+    try:
+        pg_isready = _find_bin("pg_isready")
+    except FileNotFoundError:
+        return False
+    result = subprocess.run(
+        [pg_isready, "-h", "127.0.0.1", "-p", str(port), "-q"],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def _check_login(port: int) -> None:
+    """Falha com uma mensagem clara se o usuario do .env nao existir no servidor."""
+    result = subprocess.run(
+        [
+            _find_bin("psql"),
+            "-h",
+            "127.0.0.1",
+            "-p",
+            str(port),
+            "-U",
+            DB_USER,
+            "-d",
+            "postgres",
+            "-tAc",
+            "SELECT 1",
+        ],
+        env={**os.environ, **_pg_env(port)},
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Nao consegui entrar no PostgreSQL em 127.0.0.1:{port} como '{DB_USER}'.\n"
+            "Se o PostgreSQL foi instalado como servico do Windows, crie o usuario uma vez:\n"
+            f'  psql -U postgres -c "CREATE ROLE {DB_USER} LOGIN PASSWORD \'{DB_PASSWORD}\' CREATEDB;"'
+        )
+
+
 def _is_running(data_dir: Path) -> bool:
     pg_ctl = _find_bin("pg_ctl")
     result = subprocess.run(
@@ -205,6 +269,9 @@ def _start(data_dir: Path, port: int) -> None:
     if _is_running(data_dir):
         print(f"PostgreSQL local ja esta no ar (porta {port}).")
         return
+    if _server_respondendo(port):
+        print(f"PostgreSQL ja esta no ar em 127.0.0.1:{port} (servico do Windows).")
+        return
     pg_ctl = _find_bin("pg_ctl")
     log = data_dir / "server.log"
     print(f"Iniciando PostgreSQL local na porta {port}...")
@@ -225,7 +292,13 @@ def _start(data_dir: Path, port: int) -> None:
     print(f"PostgreSQL local pronto: 127.0.0.1:{port}")
 
 
-def _stop(data_dir: Path) -> None:
+def _stop(data_dir: Path, port: int = DEFAULT_PORT) -> None:
+    if _server_respondendo(port) and not _is_running(data_dir):
+        print(
+            f"O PostgreSQL em 127.0.0.1:{port} e um servico do Windows e nao foi iniciado\n"
+            "pelo projeto. Para desliga-lo, use services.msc (servico postgresql-x64-18)."
+        )
+        return
     if not (data_dir / "PG_VERSION").exists():
         print("Cluster local ainda nao foi criado.")
         return
@@ -285,6 +358,7 @@ def _create_database(port: int, db_name: str = DB_NAME) -> None:
 
 
 def _load_scripts(port: int, *, db_name: str = DB_NAME, recriar: bool = False) -> None:
+    _check_login(port)
     if recriar and _database_exists(port, db_name):
         print(f"Recriando banco '{db_name}'...")
         _psql(
@@ -312,7 +386,7 @@ def _write_env(port: int, *, force: bool = False) -> None:
         print(f".env ja existe ({ENV_FILE}); mantido. Use --force para sobrescrever.")
         return
     content = f"""# Gerado por scripts/banco_local.py
-# Banco PostgreSQL exclusivo do projeto (nao usa a senha do PostgreSQL do sistema).
+# Banco PostgreSQL do projeto (127.0.0.1:{port}) com as credenciais abaixo.
 FLASK_ENV=development
 FLASK_DEBUG=1
 SECRET_KEY=chave-local-do-projeto-mente-saudavel
@@ -335,8 +409,12 @@ def _port_from_args(args: argparse.Namespace) -> int:
 def comando_configurar(args: argparse.Namespace) -> int:
     data_dir = Path(args.data_dir) if args.data_dir else _data_dir()
     port = _port_from_args(args)
-    _init_cluster(data_dir, port)
-    _start(data_dir, port)
+    if _server_respondendo(port):
+        print(f"PostgreSQL ja respondendo em 127.0.0.1:{port}: usando esse servidor.")
+        _check_login(port)
+    else:
+        _init_cluster(data_dir, port)
+        _start(data_dir, port)
     _load_scripts(port, recriar=args.recriar)
     if getattr(args, "com_teste", False):
         # O banco de teste e sempre recriado: assim a suite pytest parte de um
@@ -356,18 +434,26 @@ def comando_iniciar(args: argparse.Namespace) -> int:
 
 def comando_parar(args: argparse.Namespace) -> int:
     data_dir = Path(args.data_dir) if args.data_dir else _data_dir()
-    _stop(data_dir)
+    _stop(data_dir, _port_from_args(args))
     return 0
 
 
 def comando_status(args: argparse.Namespace) -> int:
     data_dir = Path(args.data_dir) if args.data_dir else _data_dir()
+    port = _port_from_args(args)
+    if _server_respondendo(port):
+        if _is_running(data_dir):
+            print(f"Pasta de dados: {data_dir}")
+        else:
+            print(f"Servidor: PostgreSQL do Windows em 127.0.0.1:{port}")
+        print("No ar.")
+        return 0
     if not (data_dir / "PG_VERSION").exists():
         print("Cluster local ainda nao foi criado. Rode: python scripts/banco_local.py configurar")
         return 1
     print(f"Pasta de dados: {data_dir}")
-    print("No ar." if _is_running(data_dir) else "Parado.")
-    return 0 if _is_running(data_dir) else 1
+    print("Parado.")
+    return 1
 
 
 def comando_recriar(args: argparse.Namespace) -> int:

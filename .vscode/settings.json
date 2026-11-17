@@ -21,10 +21,10 @@
       "name": "Mente Saudavel (local)",
       "driver": "PostgreSQL",
       "server": "127.0.0.1",
-      "port": 55433,
+      "port": 5432,
       "database": "mente_saudavel",
-      "username": "postgres",
-      "password": "postgres"
+      "username": "joaovitor",
+      "password": "Joa1045.5"
     }
   ]
 }

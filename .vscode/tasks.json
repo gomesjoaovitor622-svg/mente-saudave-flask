@@ -18,7 +18,7 @@
     },
     {
       "label": "Banco: configurar",
-      "detail": "Cria o cluster PostgreSQL exclusivo do projeto, o banco e carrega os scripts 01 a 04.",
+      "detail": "Cria o banco mente_saudavel (e o de teste) e carrega os scripts 01 a 04.",
       "type": "process",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": ["scripts/banco_local.py", "configurar", "--com-teste"],
@@ -27,7 +27,7 @@
     },
     {
       "label": "Banco: iniciar",
-      "detail": "Sobe o PostgreSQL local na porta 55433.",
+      "detail": "Garante o PostgreSQL no ar (porta 5432).",
       "type": "process",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": ["scripts/banco_local.py", "iniciar"],
@@ -45,7 +45,7 @@
     },
     {
       "label": "Banco: status",
-      "detail": "Mostra se o cluster local esta no ar.",
+      "detail": "Mostra se o PostgreSQL esta no ar.",
       "type": "process",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": ["scripts/banco_local.py", "status"],
@@ -63,7 +63,7 @@
     },
     {
       "label": "API: executar",
-      "detail": "Sobe o PostgreSQL local e inicia o Flask em http://localhost:5000.",
+      "detail": "Garante o PostgreSQL e inicia o Flask em http://localhost:5000.",
       "type": "shell",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe app.py",
       "options": { "cwd": "${workspaceFolder}" },

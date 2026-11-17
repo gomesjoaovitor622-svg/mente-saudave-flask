@@ -1,8 +1,8 @@
 # Relatorio de Testes - Mente Saudavel
 
-**Data de execucao:** 2026-11-09T23:00:40  
+**Data de execucao:** 2026-11-16T21:18:06  
 **API testada:** `http://127.0.0.1:5000`  
-**Banco de dados:** `mente_saudavel` em `127.0.0.1:55433`  
+**Banco de dados:** `mente_saudavel` em `127.0.0.1:5432`  
 **Responsavel:** equipe Mente Saudavel (IFRO)
 
 ## 1. Resumo
@@ -75,8 +75,8 @@
 ```json
 {
   "nome": "Paciente Relatorio de Testes",
-  "cpf": "33235992413",
-  "email": "relatorio.33235992413@email.com",
+  "cpf": "83209006890",
+  "email": "relatorio.83209006890@email.com",
   "telefone": "(69) 99999-4242",
   "data_nascimento": "1994-03-18",
   "genero": "nao_informado",
@@ -93,15 +93,15 @@
   "dados": {
     "id_paciente": 6,
     "nome": "Paciente Relatorio de Testes",
-    "cpf": "33235992413",
-    "email": "relatorio.33235992413@email.com",
+    "cpf": "83209006890",
+    "email": "relatorio.83209006890@email.com",
     "telefone": "(69) 99999-4242",
     "data_nascimento": "1994-03-18",
     "genero": "nao_informado",
     "cidade": "Porto Velho",
     "observacoes": "Registro criado pelo script de relatorio de testes.",
     "status": "ativo",
-    "criado_em": "2026-11-09T23:00:38.673767-04:00",
+    "criado_em": "2026-11-16T21:18:01.919696-04:00",
     "atualizado_em": null
   }
 }
@@ -119,8 +119,8 @@
 ```json
 {
   "nome": "Paciente Relatorio de Testes",
-  "cpf": "33235992413",
-  "email": "relatorio.33235992413@email.com",
+  "cpf": "83209006890",
+  "email": "relatorio.83209006890@email.com",
   "telefone": "(69) 99999-4242",
   "data_nascimento": "1994-03-18",
   "genero": "nao_informado",
@@ -154,15 +154,15 @@
     {
       "id_paciente": 6,
       "nome": "Paciente Relatorio de Testes",
-      "cpf": "33235992413",
-      "email": "relatorio.33235992413@email.com",
+      "cpf": "83209006890",
+      "email": "relatorio.83209006890@email.com",
       "telefone": "(69) 99999-4242",
       "data_nascimento": "1994-03-18",
       "genero": "nao_informado",
       "cidade": "Porto Velho",
       "observacoes": "Registro criado pelo script de relatorio de testes.",
       "status": "ativo",
-      "criado_em": "2026-11-09T23:00:38.673767-04:00",
+      "criado_em": "2026-11-16T21:18:01.919696-04:00",
       "atualizado_em": null
     }
   ],
@@ -187,15 +187,15 @@
 {
   "id_paciente": 6,
   "nome": "Paciente Relatorio de Testes",
-  "cpf": "33235992413",
-  "email": "relatorio.33235992413@email.com",
+  "cpf": "83209006890",
+  "email": "relatorio.83209006890@email.com",
   "telefone": "(69) 99999-4242",
   "data_nascimento": "1994-03-18",
   "genero": "nao_informado",
   "cidade": "Porto Velho",
   "observacoes": "Registro criado pelo script de relatorio de testes.",
   "status": "ativo",
-  "criado_em": "2026-11-09T23:00:38.673767-04:00",
+  "criado_em": "2026-11-16T21:18:01.919696-04:00",
   "atualizado_em": null
 }
 ```
@@ -223,16 +223,16 @@
   "dados": {
     "id_paciente": 6,
     "nome": "Paciente Relatorio de Testes",
-    "cpf": "33235992413",
-    "email": "relatorio.33235992413@email.com",
+    "cpf": "83209006890",
+    "email": "relatorio.83209006890@email.com",
     "telefone": "(69) 99999-4242",
     "data_nascimento": "1994-03-18",
     "genero": "nao_informado",
     "cidade": "Ji-Parana",
     "observacoes": "Registro criado pelo script de relatorio de testes.",
     "status": "ativo",
-    "criado_em": "2026-11-09T23:00:38.673767-04:00",
-    "atualizado_em": "2026-11-09T23:00:39.065274-04:00"
+    "criado_em": "2026-11-16T21:18:01.919696-04:00",
+    "atualizado_em": "2026-11-16T21:18:02.735448-04:00"
   }
 }
 ```
@@ -242,7 +242,7 @@
 - **Requisicao:** `PUT /api/pacientes/6`
 - **Status HTTP:** `422` (esperado `422`)
 - **Comportamento no banco:** Validacao do Flask interrompe antes do banco; nenhuma alteracao.
-- **Verificacao no banco:** CPF permanece: 33235992413
+- **Verificacao no banco:** CPF permanece: 83209006890
 
 **Payload enviado**
 
@@ -273,9 +273,9 @@
 
 ```json
 {
-  "nome": "Psicologo Relatorio 53126",
-  "crp": "06/53126",
-  "email": "psi.relatorio.53126@email.com",
+  "nome": "Psicologo Relatorio 74396",
+  "crp": "06/74396",
+  "email": "psi.relatorio.74396@email.com",
   "especialidade": "Psicologia Clinica",
   "valor_sessao": 195.0
 }
@@ -288,13 +288,13 @@
   "mensagem": "Psicologo cadastrado com sucesso.",
   "dados": {
     "id_psicologo": 4,
-    "nome": "Psicologo Relatorio 53126",
-    "crp": "06/53126",
-    "email": "psi.relatorio.53126@email.com",
+    "nome": "Psicologo Relatorio 74396",
+    "crp": "06/74396",
+    "email": "psi.relatorio.74396@email.com",
     "especialidade": "Psicologia Clinica",
     "valor_sessao": 195.0,
     "ativo": true,
-    "criado_em": "2026-11-09T23:00:39.192495-04:00"
+    "criado_em": "2026-11-16T21:18:03.012337-04:00"
   }
 }
 ```
@@ -312,13 +312,13 @@
   "dados": [
     {
       "id_psicologo": 4,
-      "nome": "Psicologo Relatorio 53126",
-      "crp": "06/53126",
-      "email": "psi.relatorio.53126@email.com",
+      "nome": "Psicologo Relatorio 74396",
+      "crp": "06/74396",
+      "email": "psi.relatorio.74396@email.com",
       "especialidade": "Psicologia Clinica",
       "valor_sessao": 195.0,
       "ativo": true,
-      "criado_em": "2026-11-09T23:00:39.192495-04:00"
+      "criado_em": "2026-11-16T21:18:03.012337-04:00"
     }
   ],
   "paginacao": {
@@ -343,7 +343,7 @@
 {
   "id_paciente": 6,
   "id_psicologo": 4,
-  "data_hora": "2027-01-08T14:00:00",
+  "data_hora": "2027-01-15T14:00:00",
   "duracao_minutos": 50,
   "modalidade": "online",
   "observacoes": "Consulta criada pelo relatorio de testes."
@@ -357,7 +357,7 @@
   "mensagem": "Consulta agendada com sucesso (id 8).",
   "dados": {
     "id_consulta": 8,
-    "data_hora": "2027-01-08T14:00:00-04:00",
+    "data_hora": "2027-01-15T14:00:00-04:00",
     "duracao_minutos": 50,
     "modalidade": "online",
     "status": "agendada",
@@ -365,10 +365,10 @@
     "observacoes": "Consulta criada pelo relatorio de testes.",
     "id_paciente": 6,
     "paciente": "Paciente Relatorio de Testes",
-    "paciente_email": "relatorio.33235992413@email.com",
+    "paciente_email": "relatorio.83209006890@email.com",
     "id_psicologo": 4,
-    "psicologo": "Psicologo Relatorio 53126",
-    "crp": "06/53126",
+    "psicologo": "Psicologo Relatorio 74396",
+    "crp": "06/74396",
     "especialidade": "Psicologia Clinica"
   }
 }
@@ -387,7 +387,7 @@
 {
   "id_paciente": 6,
   "id_psicologo": 4,
-  "data_hora": "2027-01-08T14:00:00",
+  "data_hora": "2027-01-15T14:00:00",
   "duracao_minutos": 50,
   "modalidade": "online",
   "observacoes": "Consulta criada pelo relatorio de testes."
@@ -432,12 +432,12 @@
     "id_consulta": 8,
     "id_paciente": 6,
     "paciente": "Paciente Relatorio de Testes",
-    "psicologo": "Psicologo Relatorio 53126",
-    "data_hora": "2027-01-08T14:00:00-04:00",
+    "psicologo": "Psicologo Relatorio 74396",
+    "data_hora": "2027-01-15T14:00:00-04:00",
     "humor": 8,
     "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
     "encaminhamento": "Manter sessoes semanais.",
-    "criado_em": "2026-11-09T23:00:39.692381-04:00"
+    "criado_em": "2026-11-16T21:18:03.898056-04:00"
   }
 }
 ```
@@ -483,7 +483,7 @@
   "dados": [
     {
       "id_consulta": 8,
-      "data_hora": "2027-01-08T14:00:00-04:00",
+      "data_hora": "2027-01-15T14:00:00-04:00",
       "duracao_minutos": 50,
       "modalidade": "online",
       "status": "agendada",
@@ -491,15 +491,15 @@
       "observacoes": "Consulta criada pelo relatorio de testes.",
       "id_paciente": 6,
       "paciente": "Paciente Relatorio de Testes",
-      "paciente_email": "relatorio.33235992413@email.com",
+      "paciente_email": "relatorio.83209006890@email.com",
       "id_psicologo": 4,
-      "psicologo": "Psicologo Relatorio 53126",
-      "crp": "06/53126",
+      "psicologo": "Psicologo Relatorio 74396",
+      "crp": "06/74396",
       "especialidade": "Psicologia Clinica"
     },
     {
       "id_consulta": 7,
-      "data_hora": "2026-11-14T17:00:00-04:00",
+      "data_hora": "2026-11-21T17:00:00-04:00",
       "duracao_minutos": 50,
       "modalidade": "presencial",
       "status": "agendada",
@@ -515,7 +515,7 @@
     },
     {
       "id_consulta": 5,
-      "data_hora": "2026-11-12T16:00:00-04:00",
+      "data_hora": "2026-11-19T16:00:00-04:00",
       "duracao_minutos": 50,
       "modalidade": "online",
       "status": "agendada",
@@ -531,7 +531,7 @@
     },
     {
       "id_consulta": 4,
-      "data_hora": "2026-11-11T09:00:00-04:00",
+      "data_hora": "2026-11-18T09:00:00-04:00",
       "duracao_minutos": 60,
       "modalidade": "presencial",
       "status": "agendada",
@@ -571,12 +571,12 @@
       "id_consulta": 8,
       "id_paciente": 6,
       "paciente": "Paciente Relatorio de Testes",
-      "psicologo": "Psicologo Relatorio 53126",
-      "data_hora": "2027-01-08T14:00:00-04:00",
+      "psicologo": "Psicologo Relatorio 74396",
+      "data_hora": "2027-01-15T14:00:00-04:00",
       "humor": 8,
       "relato": "Paciente relatou melhora significativa do sono e da ansiedade.",
       "encaminhamento": "Manter sessoes semanais.",
-      "criado_em": "2026-11-09T23:00:39.692381-04:00"
+      "criado_em": "2026-11-16T21:18:03.898056-04:00"
     }
   ],
   "paginacao": {
@@ -605,7 +605,7 @@
   "consultas_realizadas": 0,
   "consultas_agendadas": 1,
   "humor_medio": 8.0,
-  "ultima_consulta": "2027-01-08T14:00:00-04:00"
+  "ultima_consulta": "2027-01-15T14:00:00-04:00"
 }
 ```
 
@@ -627,7 +627,7 @@
   "dados": [
     {
       "id_consulta": 6,
-      "data_hora": "2026-10-20T11:00:00-04:00",
+      "data_hora": "2026-10-27T11:00:00-04:00",
       "status": "cancelada",
       "modalidade": "presencial",
       "valor": 220.0,
@@ -641,7 +641,7 @@
     },
     {
       "id_consulta": 1,
-      "data_hora": "2026-10-28T14:00:00-04:00",
+      "data_hora": "2026-11-04T14:00:00-04:00",
       "status": "realizada",
       "modalidade": "presencial",
       "valor": 180.0,
@@ -655,7 +655,7 @@
     },
     {
       "id_consulta": 2,
-      "data_hora": "2026-10-31T10:00:00-04:00",
+      "data_hora": "2026-11-07T10:00:00-04:00",
       "status": "realizada",
       "modalidade": "online",
       "valor": 200.0,
@@ -669,7 +669,7 @@
     },
     {
       "id_consulta": 3,
-      "data_hora": "2026-11-05T15:00:00-04:00",
+      "data_hora": "2026-11-12T15:00:00-04:00",
       "status": "realizada",
       "modalidade": "presencial",
       "valor": 180.0,
@@ -683,7 +683,7 @@
     },
     {
       "id_consulta": 4,
-      "data_hora": "2026-11-11T09:00:00-04:00",
+      "data_hora": "2026-11-18T09:00:00-04:00",
       "status": "agendada",
       "modalidade": "presencial",
       "valor": 220.0,
@@ -697,7 +697,7 @@
     },
     {
       "id_consulta": 5,
-      "data_hora": "2026-11-12T16:00:00-04:00",
+      "data_hora": "2026-11-19T16:00:00-04:00",
       "status": "agendada",
       "modalidade": "online",
       "valor": 200.0,
@@ -711,7 +711,7 @@
     },
     {
       "id_consulta": 7,
-      "data_hora": "2026-11-14T17:00:00-04:00",
+      "data_hora": "2026-11-21T17:00:00-04:00",
       "status": "agendada",
       "modalidade": "presencial",
       "valor": 180.0,
@@ -725,14 +725,14 @@
     },
     {
       "id_consulta": 8,
-      "data_hora": "2027-01-08T14:00:00-04:00",
+      "data_hora": "2027-01-15T14:00:00-04:00",
       "status": "agendada",
       "modalidade": "online",
       "valor": 195.0,
       "id_paciente": 6,
       "paciente": "Paciente Relatorio de Testes",
       "id_psicologo": 4,
-      "psicologo": "Psicologo Relatorio 53126",
+      "psicologo": "Psicologo Relatorio 74396",
       "especialidade": "Psicologia Clinica",
       "humor": 8,
       "relato": "Paciente relatou melhora significativa do sono e da ansiedade."
@@ -860,49 +860,49 @@ As tentativas abaixo foram feitas por **SQL direto** (sem passar pela API), comp
 **ck_pacientes_cpf_formato** - CPF com letras
 
 ```text
-ERROR:  new row for relation "pacientes" violates check constraint "ck_pacientes_cpf_formato"
+ERRO:  a nova linha da relação "pacientes" viola a restrição de verificação "ck_pacientes_cpf_formato"
 ```
 
 **ck_pacientes_nascimento** - Data de nascimento futura
 
 ```text
-ERROR:  new row for relation "pacientes" violates check constraint "ck_pacientes_nascimento"
+ERRO:  a nova linha da relação "pacientes" viola a restrição de verificação "ck_pacientes_nascimento"
 ```
 
 **ck_pacientes_genero** - Genero fora do dominio
 
 ```text
-ERROR:  new row for relation "pacientes" violates check constraint "ck_pacientes_genero"
+ERRO:  a nova linha da relação "pacientes" viola a restrição de verificação "ck_pacientes_genero"
 ```
 
 **ck_consultas_duracao** - Duracao de 10 minutos
 
 ```text
-ERROR:  new row for relation "consultas" violates check constraint "ck_consultas_duracao"
+ERRO:  a nova linha da relação "consultas" viola a restrição de verificação "ck_consultas_duracao"
 ```
 
 **ck_consultas_modalidade** - Modalidade 'domiciliar'
 
 ```text
-ERROR:  new row for relation "consultas" violates check constraint "ck_consultas_modalidade"
+ERRO:  a nova linha da relação "consultas" viola a restrição de verificação "ck_consultas_modalidade"
 ```
 
 **ck_evolucoes_humor** - Humor 11
 
 ```text
-ERROR:  new row for relation "evolucoes" violates check constraint "ck_evolucoes_humor"
+ERRO:  a nova linha da relação "evolucoes" viola a restrição de verificação "ck_evolucoes_humor"
 ```
 
 **ck_evolucoes_relato_minimo** - Relato com 5 caracteres
 
 ```text
-ERROR:  new row for relation "evolucoes" violates check constraint "ck_evolucoes_relato_minimo"
+ERRO:  a nova linha da relação "evolucoes" viola a restrição de verificação "ck_evolucoes_relato_minimo"
 ```
 
 **ck_psicologos_valor_positivo** - valor_sessao = 0
 
 ```text
-ERROR:  new row for relation "psicologos" violates check constraint "ck_psicologos_valor_positivo"
+ERRO:  a nova linha da relação "psicologos" viola a restrição de verificação "ck_psicologos_valor_positivo"
 ```
 
 ## 5. Conclusao

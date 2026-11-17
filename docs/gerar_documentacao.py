@@ -1113,7 +1113,7 @@ COMMIT;"""
     story.append(
         _bullets(
             [
-                "No VS Code, abrir a pasta e executar uma única vez a tarefa <b>Projeto: primeiro uso</b>: ela cria o <font name='Courier'>.venv</font>, instala as dependências, cria o cluster PostgreSQL exclusivo do projeto na porta 55433 e gera o <font name='Courier'>.env</font>.",
+                "No VS Code, abrir a pasta e executar uma única vez a tarefa <b>Projeto: primeiro uso</b>: ela cria o <font name='Courier'>.venv</font>, instala as dependências, cria o banco PostgreSQL do projeto na porta 5432 e gera o <font name='Courier'>.env</font>.",
                 "Pressionar <b>F5</b> (configuração <b>API: depurar (Flask)</b>) ou executar a tarefa <b>API: executar</b>; o VS Code sobe o banco e o Flask juntos.",
                 "Alternativamente, executar manualmente os scripts 00 a 04 da pasta <font name='Courier'>database/</font>, copiar <font name='Courier'>.env.example</font> para <font name='Courier'>.env</font> e rodar <font name='Courier'>python app.py</font>.",
                 "Acessar <font name='Courier'>http://localhost:5000</font> e a lista de endpoints em <font name='Courier'>http://localhost:5000/api</font>.",

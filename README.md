@@ -99,9 +99,9 @@ mente-saudave-flask/
 ## 🖥️ Abrir no VS Code (recomendado)
 
 O projeto já vem com tarefas, depuração e extensões recomendadas na pasta
-`.vscode/`. O banco local é um **cluster PostgreSQL exclusivo do projeto**, na
-porta **55433**, que não interfere no PostgreSQL já instalado na máquina
-(porta 5432) nem exige saber a senha dele.
+`.vscode/`. O banco é o **PostgreSQL 18 instalado no Windows** (serviço
+`postgresql-x64-18`), na porta **5432**, com o usuário **`joaovitor`** e o banco
+**`mente_saudavel`**. As credenciais ficam no `.env`, que não é versionado.
 
 1. Abra a pasta do projeto no VS Code:
 
@@ -114,10 +114,12 @@ porta **55433**, que não interfere no PostgreSQL já instalado na máquina
 
 3. Execute a tarefa **`Projeto: primeiro uso`** uma única vez
    (`Ctrl+Shift+P` → **Tasks: Run Task**). Ela cria o `.venv`, instala as
-   dependências, cria o cluster local, carrega os scripts SQL e gera o `.env`.
+   dependências, cria o banco `mente_saudavel` (e o de teste), carrega os
+   scripts SQL e gera o `.env`.
 
 4. Pressione **F5** (configuração **API: depurar (Flask)**) ou execute a tarefa
-   **`API: executar`**. O VS Code sobe o PostgreSQL local e o Flask juntos.
+   **`API: executar`**. Se o serviço do PostgreSQL já estiver no ar, o VS Code
+   só inicia o Flask.
 
 5. Abra:
 
@@ -130,10 +132,10 @@ porta **55433**, que não interfere no PostgreSQL já instalado na máquina
 | Tarefa | O que faz |
 |--------|-----------|
 | `Projeto: preparar ambiente` | Cria o `.venv` e instala `requirements-dev.txt` |
-| `Projeto: primeiro uso` | Ambiente + cluster PostgreSQL + scripts + `.env` |
-| `Banco: configurar` | Cria o cluster e carrega os scripts SQL |
-| `Banco: iniciar` / `Banco: parar` | Liga/desliga o PostgreSQL local (porta 55433) |
-| `Banco: status` | Mostra se o cluster está no ar |
+| `Projeto: primeiro uso` | Ambiente + banco PostgreSQL + scripts + `.env` |
+| `Banco: configurar` | Cria o banco (e o de teste) e carrega os scripts SQL |
+| `Banco: iniciar` / `Banco: parar` | Liga/desliga o PostgreSQL (porta 5432) |
+| `Banco: status` | Mostra se o PostgreSQL está no ar |
 | `Banco: recriar (apaga os dados)` | Recria o banco do zero e recarrega o seed |
 | `API: executar` | Sobe o banco e o Flask em <http://localhost:5000> |
 | `API: abrir lista de endpoints` | Abre `/api` no navegador |
@@ -141,9 +143,11 @@ porta **55433**, que não interfere no PostgreSQL já instalado na máquina
 | `Entrega: gerar PDF e ZIP` | Regenera a documentação e o pacote |
 | `Entrega: verificar` | Valida PDF, ZIP, nomes e estrutura |
 
-> O cluster fica em `%LOCALAPPDATA%\MenteSaudavel\pgdata` (fora do OneDrive),
-> com usuário `postgres` e senha `postgres`, apenas para este projeto.
-> Para usar outro PostgreSQL, basta editar o `.env`.
+> O PostgreSQL 18 fica em `C:\Program Files\PostgreSQL\18` e roda como serviço
+> do Windows (`postgresql-x64-18`), iniciado automaticamente com o sistema.
+> O acesso usa o usuário `joaovitor`, a porta `5432` e a senha definida no
+> `.env`. Se o serviço estiver parado, o script tenta subir um cluster próprio
+> em `C:\MenteSaudavel\pgdata` — para usar outro PostgreSQL, basta editar o `.env`.
 
 ### Testar os endpoints dentro do VS Code
 
@@ -188,18 +192,18 @@ Edite o `.env` com os dados do seu PostgreSQL:
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=mente_saudavel
-DB_USER=postgres
+DB_USER=joaovitor
 DB_PASSWORD=sua_senha
 ```
 
 ### 4. Criar e popular o banco
 
 ```bash
-psql -U postgres -f database/00_create_database.sql
-psql -U postgres -d mente_saudavel -f database/01_schema.sql
-psql -U postgres -d mente_saudavel -f database/02_views.sql
-psql -U postgres -d mente_saudavel -f database/03_procedures.sql
-psql -U postgres -d mente_saudavel -f database/04_seed.sql
+psql -U joaovitor -f database/00_create_database.sql
+psql -U joaovitor -d mente_saudavel -f database/01_schema.sql
+psql -U joaovitor -d mente_saudavel -f database/02_views.sql
+psql -U joaovitor -d mente_saudavel -f database/03_procedures.sql
+psql -U joaovitor -d mente_saudavel -f database/04_seed.sql
 ```
 
 > Também é possível executar os arquivos pelo pgAdmin (Query Tool), um por vez.

@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Mente Saudavel - Script 00: criacao do banco de dados
 -- Execute este arquivo conectado ao banco "postgres".
---   psql -U postgres -f database/00_create_database.sql
+--   psql -U joaovitor -f database/00_create_database.sql
 -- ============================================================================
 
 SELECT 'CREATE DATABASE mente_saudavel WITH ENCODING ''UTF8'' TEMPLATE template0'
