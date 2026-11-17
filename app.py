@@ -57,21 +57,15 @@ app = create_app()
 application = app
 
 
-def _debug_enabled() -> bool:
-    """Converte a variavel de ambiente ``FLASK_DEBUG`` em booleano.
-
-    Aceita os valores usuais (1/true/yes/on). O padrao e desligado para evitar
-    que o modo debug seja ativado acidentalmente em producao.
-    """
-    return os.getenv("FLASK_DEBUG", "0").strip().lower() in {"1", "true", "yes", "on"}
-
-
 if __name__ == "__main__":
     # ``host=0.0.0.0`` permite acesso externo (necessario para o tunel de
     # demonstracao e para testar a API a partir de outro dispositivo).
-    # ``debug`` fica sob controle do ambiente; nunca fixamos True no codigo.
+    #
+    # ``debug`` vem da configuracao (``Config``/``ProductionConfig`` ja leram
+    # ``FLASK_DEBUG``): assim existe uma unica fonte de verdade e producao
+    # nunca liga o console do Werkzeug por causa de um ``.env`` esquecido.
     app.run(
         host="0.0.0.0",
         port=int(os.getenv("PORT", "5000")),
-        debug=_debug_enabled(),
+        debug=app.config["DEBUG"],
     )

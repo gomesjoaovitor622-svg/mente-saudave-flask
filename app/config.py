@@ -43,14 +43,35 @@ def _as_bool(value: str | None, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _as_list(value: str | None, default: list[str]) -> list[str]:
+    """Converte uma lista separada por virgulas em ``list[str]``.
+
+    Exemplo: ``CORS_ORIGINS="https://app.exemplo.com, https://admin.exemplo.com"``
+    vira ``["https://app.exemplo.com", "https://admin.exemplo.com"]``.
+    """
+    if value is None or not value.strip():
+        return list(default)
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+# Valor de desenvolvimento usado quando ninguem definiu SECRET_KEY. E proposital
+# que ele seja fraco: ``create_app`` recusa subir em producao com esta chave.
+SECRET_KEY_PADRAO = "chave-de-desenvolvimento"
+
+
 class Config:
     """Configuracao base, utilizada em desenvolvimento."""
 
     # --- Flask -----------------------------------------------------------
-    # Em producao, defina SECRET_KEY no ambiente (ProductionConfig valida).
-    SECRET_KEY = os.getenv("SECRET_KEY", "chave-de-desenvolvimento")
+    SECRET_KEY = os.getenv("SECRET_KEY", SECRET_KEY_PADRAO)
     DEBUG = _as_bool(os.getenv("FLASK_DEBUG"), default=True)
     JSON_SORT_KEYS = False
+
+    # --- CORS ------------------------------------------------------------
+    # ``*`` libera qualquer origem, o que e aceitavel apenas em desenvolvimento.
+    # Em producao, use ProductionConfig (que nao libera nada por padrao) ou
+    # defina CORS_ORIGINS com as origens reais do painel/app.
+    CORS_ORIGINS = _as_list(os.getenv("CORS_ORIGINS"), default=["*"])
 
     # --- Banco de dados --------------------------------------------------
     # Cada valor pode vir do ambiente. Os padroes funcionam no Docker/local.
@@ -76,7 +97,15 @@ class Config:
         Manter os nomes no formato esperado pelo driver (``dbname``, ``host``,
         ``port``...) evita concatenar strings de conexao e previne erros de
         escaping com senhas que contenham caracteres especiais.
+
+        Se ``DATABASE_URL`` estiver definida (padrao em hospedagens como Render,
+        Railway e Heroku), ela tem prioridade: e uma unica string que ja traz
+        host, porta, usuario, senha, banco e ``sslmode``. Assim, o mesmo codigo
+        funciona local e na nuvem sem precisar remontar as partes.
         """
+        dsn = os.getenv("DATABASE_URL")
+        if dsn:
+            return {"dsn": dsn, "connect_timeout": cls.DB_CONNECT_TIMEOUT}
         return {
             "host": cls.DB_HOST,
             "port": cls.DB_PORT,
@@ -100,11 +129,16 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    """Configuracao de producao: sem debug e chave obrigatoria."""
+    """Configuracao de producao: sem debug, sem CORS aberto.
+
+    A chave ``SECRET_KEY`` continua vindo do ambiente e e validada na criacao
+    da aplicacao (``create_app``): subir em producao com a chave de
+    desenvolvimento levanta erro, em vez de expor o app com uma chave publica.
+
+    ``CORS_ORIGINS`` fica vazio por padrao porque o painel e servido pela
+    propria aplicacao (mesma origem, sem CORS). Se houver um front-end em outro
+    dominio, basta definir ``CORS_ORIGINS=https://meu-painel.com``.
+    """
 
     DEBUG = False
-
-    def __init__(self) -> None:
-        # Falha rapido: e melhor o deploy falhar do que subir com chave fraca.
-        if not os.getenv("SECRET_KEY"):
-            raise RuntimeError("Defina SECRET_KEY no ambiente de producao.")
+    CORS_ORIGINS = _as_list(os.getenv("CORS_ORIGINS"), default=[])

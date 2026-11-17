@@ -71,6 +71,7 @@ mente-saudave-flask/
 │   ├── 04_seed.sql          # dados de exemplo
 │   └── README.md
 ├── docs/
+│   ├── AUDITORIA-ETAPA-1.md # diagnostico tecnico (achados e riscos)
 │   ├── Documentacao_Mente_Saudavel.pdf
 │   ├── RELATORIO_DE_TESTES.md
 │   ├── documentacao.md
@@ -90,8 +91,9 @@ mente-saudave-flask/
 ├── .env.example
 ├── requirements.txt
 ├── requirements-dev.txt
+├── Procfile                 # start command em produção (gunicorn)
 ├── app.py                   # ponto de entrada oficial
-└── run.py                   # compatibilidade (delega para app.py)
+└── run.py                   # compatibilidade / alvo do gunicorn
 ```
 
 ---
@@ -100,8 +102,9 @@ mente-saudave-flask/
 
 O projeto já vem com tarefas, depuração e extensões recomendadas na pasta
 `.vscode/`. O banco é o **PostgreSQL 18 instalado no Windows** (serviço
-`postgresql-x64-18`), na porta **5432**, com o usuário **`joaovitor`** e o banco
-**`mente_saudavel`**. As credenciais ficam no `.env`, que não é versionado.
+`postgresql-x64-18`), na porta **5432**, com o banco **`mente_saudavel`**. O
+usuário, a senha e o restante das credenciais ficam no `.env`, que não é
+versionado.
 
 1. Abra a pasta do projeto no VS Code:
 
@@ -144,10 +147,14 @@ O projeto já vem com tarefas, depuração e extensões recomendadas na pasta
 | `Entrega: verificar` | Valida PDF, ZIP, nomes e estrutura |
 
 > O PostgreSQL 18 fica em `C:\Program Files\PostgreSQL\18` e roda como serviço
-> do Windows (`postgresql-x64-18`), iniciado automaticamente com o sistema.
-> O acesso usa o usuário `joaovitor`, a porta `5432` e a senha definida no
-> `.env`. Se o serviço estiver parado, o script tenta subir um cluster próprio
-> em `C:\MenteSaudavel\pgdata` — para usar outro PostgreSQL, basta editar o `.env`.
+> do Windows (`postgresql-x64-18`), iniciado automaticamente com o sistema —
+> não é preciso subir o banco à mão. O acesso usa a porta `5432` e as
+> credenciais do `.env`.
+>
+> ⚠️ **Não rode a tarefa `Banco: configurar`**: ela foi feita para criar um
+> cluster portátil em `C:\MenteSaudavel\pgdata` e não é necessária quando o
+> serviço do Windows já está instalado. (Ela só sobrescreve o `.env` com
+> `--force`, mas os scripts SQL seriam recarregados no banco de produção local.)
 
 ### Testar os endpoints dentro do VS Code
 
@@ -189,21 +196,28 @@ cp .env.example .env      # Linux/macOS
 Edite o `.env` com os dados do seu PostgreSQL:
 
 ```env
+APP_ENV=development
+SECRET_KEY=troque-esta-chave
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=mente_saudavel
-DB_USER=joaovitor
+DB_USER=postgres
 DB_PASSWORD=sua_senha
+CORS_ORIGINS=*
 ```
+
+> Em produção, `APP_ENV=production` ativa o `ProductionConfig`: debug desligado,
+> CORS fechado e `SECRET_KEY` obrigatória (o app se recusa a subir com a chave
+> de exemplo).
 
 ### 4. Criar e popular o banco
 
 ```bash
-psql -U joaovitor -f database/00_create_database.sql
-psql -U joaovitor -d mente_saudavel -f database/01_schema.sql
-psql -U joaovitor -d mente_saudavel -f database/02_views.sql
-psql -U joaovitor -d mente_saudavel -f database/03_procedures.sql
-psql -U joaovitor -d mente_saudavel -f database/04_seed.sql
+psql -U postgres -f database/00_create_database.sql
+psql -U postgres -d mente_saudavel -f database/01_schema.sql
+psql -U postgres -d mente_saudavel -f database/02_views.sql
+psql -U postgres -d mente_saudavel -f database/03_procedures.sql
+psql -U postgres -d mente_saudavel -f database/04_seed.sql
 ```
 
 > Também é possível executar os arquivos pelo pgAdmin (Query Tool), um por vez.
@@ -233,6 +247,67 @@ O endereço também é gravado em [`docs/URL_PUBLICA.txt`](docs/URL_PUBLICA.txt)
 e usado na geração do PDF. Como é um túnel gratuito `trycloudflare.com`, ele
 não possui garantia de disponibilidade e deixa de responder quando os
 processos são encerrados.
+
+---
+
+## ☁️ Deploy em produção
+
+O repositório já traz tudo o que a hospedagem precisa para subir a aplicação:
+
+| Peça | Onde está |
+|------|-----------|
+| Ponto de entrada WSGI | `run.py` (`app = create_app()`) |
+| Comando de start | `Procfile` → `gunicorn run:app --bind 0.0.0.0:$PORT` |
+| Dependências | `requirements.txt` (o gunicorn é instalado só em Linux/macOS) |
+| Escolha de ambiente | `APP_ENV=production` seleciona `ProductionConfig` |
+| Conexão com o banco | `DATABASE_URL` tem prioridade sobre `DB_HOST`/`DB_USER`/... |
+
+### 1. Banco de dados gerenciado
+
+Crie um PostgreSQL no provedor (Render, Railway, Neon, Supabase...) e copie a
+**Internal Database URL**. Depois carregue os scripts nessa ordem:
+
+```bash
+# Pule o 00 se o provedor já criou o banco (o normal em serviços gerenciados)
+psql "$DATABASE_URL" -f database/00_create_database.sql
+psql "$DATABASE_URL" -f database/01_schema.sql
+psql "$DATABASE_URL" -f database/02_views.sql
+psql "$DATABASE_URL" -f database/03_procedures.sql
+psql "$DATABASE_URL" -f database/04_seed.sql   # opcional: dados de exemplo
+```
+
+### 2. Variáveis de ambiente no painel do provedor
+
+```env
+APP_ENV=production
+SECRET_KEY=<saida de: python -c "import secrets; print(secrets.token_hex(32))">
+DATABASE_URL=postgresql://usuario:senha@host:5432/banco?sslmode=require
+CORS_ORIGINS=
+```
+
+- Não cadastre `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` quando usar
+  `DATABASE_URL`.
+- `CORS_ORIGINS` vazio significa "só a própria origem": o painel é servido pela
+  mesma aplicação. Preencha apenas se houver um front-end em outro domínio.
+- Sem `SECRET_KEY` própria a aplicação **não sobe** em produção (proteção
+  contra chave pública).
+
+### 3. Start command
+
+```bash
+gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+```
+
+O `Procfile` já contém exatamente esse comando, então Render e Railway o
+detectam automaticamente. Em VPS, coloque um proxy reverso (Nginx ou Caddy)
+na frente para cuidar do HTTPS.
+
+### 4. Conferir depois do deploy
+
+```bash
+curl https://SEU-APP.onrender.com/api/health
+# {"status":"ok","servico":"Mente Saudavel API","banco":"...","versao_postgresql":"PostgreSQL ..."}
+```
 
 ---
 

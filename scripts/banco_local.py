@@ -52,8 +52,11 @@ ENV_FILE = BASE_DIR / ".env"
 
 DB_NAME = "mente_saudavel"
 TEST_DB_NAME = "mente_saudavel_test"
-DB_USER = "joaovitor"
-DB_PASSWORD = "Joa1045.5"
+# Credenciais do cluster portatil criado por este script. Nao existe senha
+# embutida no codigo (o repositorio e publico): use as variaveis de ambiente
+# DB_USER/DB_PASSWORD para escolher outro usuario/senha.
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 DEFAULT_PORT = 5432
 
 # Pasta dos binarios/cluster no Windows. Precisa ser um caminho somente ASCII,
