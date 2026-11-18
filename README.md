@@ -8,7 +8,7 @@ A aplicação oferece uma **Web API REST em Python/Flask** para o cadastro de
 pacientes, psicólogos, consultas e evoluções clínicas, além de um **painel web**
 que consome essa API. Os dados são persistidos em **PostgreSQL**, com regras de
 integridade, *stored procedures*, *views* com `JOIN`, *triggers* de auditoria e
-validação em todas as camadas.
+validação no back-end.
 
 ---
 
@@ -22,8 +22,7 @@ validação em todas as camadas.
 - **Evoluções** — registro do prontuário (humor de 1 a 10 e relato da sessão).
 - **Relatórios** — atendimentos por período e indicadores gerais da clínica.
 - **Painel web** — dashboard, tabelas e formulários consumindo a API via `fetch`.
-- **Documentação** — [`docs/Documentacao_Mente_Saudavel.pdf`](docs/Documentacao_Mente_Saudavel.pdf),
-  relatório de testes em [`docs/RELATORIO_DE_TESTES.md`](docs/RELATORIO_DE_TESTES.md)
+- **Documentação** — [`docs/Documentacao_Mente_Saudavel.pdf`](docs/Documentacao_Mente_Saudavel.pdf)
   e coleção do Postman em [`postman/`](postman/).
 
 ---
@@ -38,7 +37,6 @@ validação em todas as camadas.
 | Driver | psycopg2 |
 | Configuração | python-dotenv (`.env`) |
 | Frontend | HTML, CSS e JavaScript puro |
-| Testes | pytest |
 
 ---
 
@@ -62,106 +60,30 @@ mente-saudave-flask/
 │   ├── static/
 │   │   ├── css/styles.css
 │   │   └── js/app.js
-│   └── templates/index.html
+│   └── templates/
+│       ├── index.html       # painel web
+│       └── api.html         # índice de endpoints
 ├── database/
 │   ├── 00_create_database.sql
-│   ├── 01_schema.sql        # tabelas, PK/FK, checks, triggers e índices
+│   ├── 01_schema.sql        # tabelas, PK/FK, CHECKs, triggers e índices
 │   ├── 02_views.sql         # views com JOIN + funções de relatório
 │   ├── 03_procedures.sql    # stored procedures
 │   ├── 04_seed.sql          # dados de exemplo
 │   └── README.md
 ├── docs/
-│   ├── AUDITORIA-ETAPA-1.md # diagnostico tecnico (achados e riscos)
 │   ├── Documentacao_Mente_Saudavel.pdf
-│   ├── RELATORIO_DE_TESTES.md
-│   ├── documentacao.md
 │   ├── gerar_documentacao.py
-│   ├── img/                 # capturas do painel e evidências Postman
-│   └── testes/              # harness HTTP, JSON de resultados e HTML estilo Postman
+│   └── img/                 # capturas do painel e evidências Postman
 ├── postman/
 │   └── mente-saudavel.postman_collection.json
 ├── scripts/
-│   ├── relatorio_testes.py  # bateria HTTP + CHECK constraints com evidências
 │   └── gerar_zip.py         # empacotamento da entrega
-├── tests/
-│   ├── conftest.py
-│   ├── test_validators.py
-│   ├── test_api.py
-│   └── test_constraints.py  # integridade do banco (CHECK, FK, UNIQUE, triggers...)
 ├── .env.example
+├── app.py                   # ponto de entrada da aplicação
 ├── requirements.txt
-├── requirements-dev.txt
-├── Procfile                 # start command em produção (gunicorn)
-├── app.py                   # ponto de entrada oficial
-└── run.py                   # compatibilidade / alvo do gunicorn
+├── requirements-dev.txt     # dependências para gerar o PDF
+└── README.md
 ```
-
----
-
-## 🖥️ Abrir no VS Code (recomendado)
-
-O projeto já vem com tarefas, depuração e extensões recomendadas na pasta
-`.vscode/`. O banco é o **PostgreSQL 18 instalado no Windows** (serviço
-`postgresql-x64-18`), na porta **5432**, com o banco **`mente_saudavel`**. O
-usuário, a senha e o restante das credenciais ficam no `.env`, que não é
-versionado.
-
-1. Abra a pasta do projeto no VS Code:
-
-   ```powershell
-   code .
-   ```
-
-2. Aceite as extensões recomendadas (Python, Pylance, SQLTools e REST Client)
-   quando o VS Code perguntar, ou abra **Extensões → `@recommended`**.
-
-3. Execute a tarefa **`Projeto: primeiro uso`** uma única vez
-   (`Ctrl+Shift+P` → **Tasks: Run Task**). Ela cria o `.venv`, instala as
-   dependências, cria o banco `mente_saudavel` (e o de teste), carrega os
-   scripts SQL e gera o `.env`.
-
-4. Pressione **F5** (configuração **API: depurar (Flask)**) ou execute a tarefa
-   **`API: executar`**. Se o serviço do PostgreSQL já estiver no ar, o VS Code
-   só inicia o Flask.
-
-5. Abra:
-
-   - Painel: <http://localhost:5000>
-   - **Lista de endpoints: <http://localhost:5000/api>**
-   - Health check: <http://localhost:5000/api/health>
-
-### Tarefas disponíveis
-
-| Tarefa | O que faz |
-|--------|-----------|
-| `Projeto: preparar ambiente` | Cria o `.venv` e instala `requirements-dev.txt` |
-| `Projeto: primeiro uso` | Ambiente + banco PostgreSQL + scripts + `.env` |
-| `Banco: configurar` | Cria o banco (e o de teste) e carrega os scripts SQL |
-| `Banco: iniciar` / `Banco: parar` | Liga/desliga o PostgreSQL (porta 5432) |
-| `Banco: status` | Mostra se o PostgreSQL está no ar |
-| `Banco: recriar (apaga os dados)` | Recria o banco do zero e recarrega o seed |
-| `API: executar` | Sobe o banco e o Flask em <http://localhost:5000> |
-| `API: abrir lista de endpoints` | Abre `/api` no navegador |
-| `Testes: executar` | Roda a suíte completa no banco de teste |
-| `Entrega: gerar PDF e ZIP` | Regenera a documentação e o pacote |
-| `Entrega: verificar` | Valida PDF, ZIP, nomes e estrutura |
-
-> O PostgreSQL 18 fica em `C:\Program Files\PostgreSQL\18` e roda como serviço
-> do Windows (`postgresql-x64-18`), iniciado automaticamente com o sistema —
-> não é preciso subir o banco à mão. O acesso usa a porta `5432` e as
-> credenciais do `.env`.
->
-> ⚠️ **Não rode a tarefa `Banco: configurar`**: ela foi feita para criar um
-> cluster portátil em `C:\MenteSaudavel\pgdata` e não é necessária quando o
-> serviço do Windows já está instalado. (Ela só sobrescreve o `.env` com
-> `--force`, mas os scripts SQL seriam recarregados no banco de produção local.)
-
-### Testar os endpoints dentro do VS Code
-
-Abra o arquivo [`api.http`](api.http), instale a extensão **REST Client** se
-ainda não instalou e clique em **Send Request** acima de qualquer requisição.
-A coleção completa também está em
-[`postman/mente-saudavel.postman_collection.json`](postman/mente-saudavel.postman_collection.json).
 
 ---
 
@@ -206,10 +128,6 @@ DB_PASSWORD=sua_senha
 CORS_ORIGINS=*
 ```
 
-> Em produção, `APP_ENV=production` ativa o `ProductionConfig`: debug desligado,
-> CORS fechado e `SECRET_KEY` obrigatória (o app se recusa a subir com a chave
-> de exemplo).
-
 ### 4. Criar e popular o banco
 
 ```bash
@@ -232,82 +150,6 @@ python app.py
 - Painel web: <http://localhost:5000>
 - API: <http://localhost:5000/api>
 - Health check: <http://localhost:5000/api/health>
-
-> `app.py` é o ponto de entrada oficial. `run.py` continua funcionando por
-> compatibilidade e delega para o mesmo código.
-
-### 6. Demonstração pública (temporária)
-
-Enquanto o servidor Flask, o PostgreSQL e o túnel Cloudflare estiverem em
-execução na máquina de demonstração, o sistema pode ser acessado em:
-
-**<https://unlike-add-peace-exist.trycloudflare.com>**
-
-O endereço também é gravado em [`docs/URL_PUBLICA.txt`](docs/URL_PUBLICA.txt)
-e usado na geração do PDF. Como é um túnel gratuito `trycloudflare.com`, ele
-não possui garantia de disponibilidade e deixa de responder quando os
-processos são encerrados.
-
----
-
-## ☁️ Deploy em produção
-
-O repositório já traz tudo o que a hospedagem precisa para subir a aplicação:
-
-| Peça | Onde está |
-|------|-----------|
-| Ponto de entrada WSGI | `run.py` (`app = create_app()`) |
-| Comando de start | `Procfile` → `gunicorn run:app --bind 0.0.0.0:$PORT` |
-| Dependências | `requirements.txt` (o gunicorn é instalado só em Linux/macOS) |
-| Escolha de ambiente | `APP_ENV=production` seleciona `ProductionConfig` |
-| Conexão com o banco | `DATABASE_URL` tem prioridade sobre `DB_HOST`/`DB_USER`/... |
-
-### 1. Banco de dados gerenciado
-
-Crie um PostgreSQL no provedor (Render, Railway, Neon, Supabase...) e copie a
-**Internal Database URL**. Depois carregue os scripts nessa ordem:
-
-```bash
-# Pule o 00 se o provedor já criou o banco (o normal em serviços gerenciados)
-psql "$DATABASE_URL" -f database/00_create_database.sql
-psql "$DATABASE_URL" -f database/01_schema.sql
-psql "$DATABASE_URL" -f database/02_views.sql
-psql "$DATABASE_URL" -f database/03_procedures.sql
-psql "$DATABASE_URL" -f database/04_seed.sql   # opcional: dados de exemplo
-```
-
-### 2. Variáveis de ambiente no painel do provedor
-
-```env
-APP_ENV=production
-SECRET_KEY=<saida de: python -c "import secrets; print(secrets.token_hex(32))">
-DATABASE_URL=postgresql://usuario:senha@host:5432/banco?sslmode=require
-CORS_ORIGINS=
-```
-
-- Não cadastre `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` quando usar
-  `DATABASE_URL`.
-- `CORS_ORIGINS` vazio significa "só a própria origem": o painel é servido pela
-  mesma aplicação. Preencha apenas se houver um front-end em outro domínio.
-- Sem `SECRET_KEY` própria a aplicação **não sobe** em produção (proteção
-  contra chave pública).
-
-### 3. Start command
-
-```bash
-gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
-```
-
-O `Procfile` já contém exatamente esse comando, então Render e Railway o
-detectam automaticamente. Em VPS, coloque um proxy reverso (Nginx ou Caddy)
-na frente para cuidar do HTTPS.
-
-### 4. Conferir depois do deploy
-
-```bash
-curl https://SEU-APP.onrender.com/api/health
-# {"status":"ok","servico":"Mente Saudavel API","banco":"...","versao_postgresql":"PostgreSQL ..."}
-```
 
 ---
 
@@ -388,8 +230,9 @@ Resposta `201 Created`:
 
 ## 🗄️ Destaques do banco de dados
 
-- **Normalização** — tabelas `psicologos`, `pacientes`, `consultas` e
-  `evolucoes`, sem dados redundantes; a evolução referencia apenas a consulta.
+- **Normalização** — tabelas `psicologos`, `pacientes`, `consultas`,
+  `evolucoes` e `auditoria_pacientes`, sem dados redundantes; a evolução
+  referencia apenas a consulta.
 - **PKs e FKs** — todas as relações declaradas com `ON DELETE` definido.
 - **Check constraints** — 18 regras nomeadas (CPF, e-mail, datas, status,
   duração, humor, valor etc.).
@@ -399,79 +242,23 @@ Resposta `201 Created`:
   - `sp_registrar_evolucao` — usada no `POST /api/evolucoes`;
   - `sp_relatorio_atendimentos` — relatório com **VIEW + JOIN** e `REFCURSOR`
     (não é chamada pela API, conforme o enunciado).
-- **View de relatório** — `vw_relatorio_atendimentos` combina consultas,
-  pacientes, psicólogos e evoluções.
+- **Views** — `vw_agenda_completa`, `vw_evolucoes` e
+  `vw_relatorio_atendimentos`, todas com `JOIN`.
 - **Auditoria** — trigger registra `INSERT`, `UPDATE` e `DELETE` de pacientes.
 - **Agenda** — índice único parcial impede dois agendamentos ativos no mesmo
   horário para o mesmo profissional.
-
----
-
-## ✅ Testes
-
-A suíte possui **56 testes** e cobre validações unitárias, integração dos
-endpoints e integridade do banco de dados.
-
-Testes unitários (não precisam de banco):
-
-```bash
-pytest tests/test_validators.py -q
-```
-
-Testes de integração e de integridade (usam um banco de teste):
-
-```bash
-# 1. crie o banco mente_saudavel_test e execute os scripts 01 a 04 nele
-# 2. defina as variáveis e rode:
-set RUN_DB_TESTS=1
-set TEST_DB_NAME=mente_saudavel_test
-pytest -q
-```
-
-No Linux/macOS:
-
-```bash
-RUN_DB_TESTS=1 TEST_DB_NAME=mente_saudavel_test pytest -q
-```
-
-Resultado esperado:
-
-```text
-56 passed
-```
-
-### Evidências dos testes
-
-O script `scripts/relatorio_testes.py` executa a API real e grava evidências
-com payload, status HTTP e verificação no banco:
-
-```bash
-python scripts/relatorio_testes.py --base-url http://127.0.0.1:5000
-```
-
-Ele gera:
-
-- [`docs/RELATORIO_DE_TESTES.md`](docs/RELATORIO_DE_TESTES.md) — relatório detalhado;
-- [`docs/testes/resultado_testes.json`](docs/testes/resultado_testes.json) — evidência legível por máquina;
-- páginas HTML no estilo Postman em [`docs/testes/`](docs/testes/).
-
-Resultado da última execução: **22/22 testes HTTP** com o status esperado e
-**8/8 CHECK constraints** rejeitando dados inválidos por SQL direto.
+- **Comentários** — todas as colunas das tabelas e views possuem
+  `COMMENT ON COLUMN`.
 
 ---
 
 ## 📮 Postman
 
-Importe `postman/mente-saudavel.postman_collection.json` no Postman. A variável
-`baseUrl` já aponta para `http://localhost:5000`. A coleção contém exemplos de
-todas as operações e pode ser usada para gerar as capturas de tela exigidas na
-documentação.
-
-As capturas usadas no PDF são geradas a partir das execuções reais:
-
-```bash
-python docs/testes/gerar_postman_html.py
-```
+Importe `postman/mente-saudavel.postman_collection.json` no Postman
+(**Import → File**, ou arraste o arquivo para a janela). A variável `baseUrl`
+já aponta para `http://localhost:5000`. A coleção contém as 25 requisições da
+API, organizadas em pastas, e pode ser usada para gerar as capturas exigidas
+na documentação.
 
 ---
 
@@ -484,18 +271,6 @@ nome segue a regra da atividade:
 [nome inicial de cada membro separado por _].[nome do sistema].zip
 ```
 
-Exemplo com quatro integrantes (João, Maria, Pedro e Ana):
-
-```text
-Joao_Maria_Pedro_Ana.Mente_Saudavel.zip
-```
-
-Gere o pacote automaticamente com:
-
-```bash
-python scripts/gerar_zip.py --membros "Joao Maria Pedro Ana"
-```
-
 Para esta entrega (Jhennyfér e João Vitor):
 
 ```bash
@@ -503,22 +278,18 @@ python scripts/gerar_zip.py --membros "Jhennyfer Joao" --saida entrega
 # gera: entrega/Jhennyfer_Joao.Mente_Saudavel.zip
 ```
 
-O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/`, `tests/`,
-`.vscode/`, `api.http` e os arquivos da raiz, ignorando `.venv/`, `.git/`,
-caches, `.env` e arquivos temporários. Depois de gerar, confira o pacote com:
-
-```bash
-python scripts/verificar_entrega.py
-```
+O script inclui `app/`, `database/`, `docs/`, `postman/`, `scripts/` e os
+arquivos da raiz, ignorando `.venv/`, `.git/`, caches, `.env` e arquivos
+temporários.
 
 ---
 
 ## 👥 Equipe
 
-| Integrante | Banco de Dados II | Desenvolvimento Web III | Documentação e testes |
-|------------|-------------------|-------------------------|-----------------------|
-| **Jhennyfér** | Modelagem e normalização; `01_schema.sql`; CHECK/FK/UNIQUE, triggers e índices; views com JOIN (`02_views.sql`) e funções de relatório | Apoio a `app/db.py` e às chamadas de procedures; tabela de endpoints e coleção Postman | Comentários coluna a coluna, constraints e views; relatório de testes; PDF final e ZIP |
-| **João Vitor** | Stored procedures (`03_procedures.sql`) e seed (`04_seed.sql`); testes de integridade (`tests/test_constraints.py`) | API Flask, blueprints, validações e erros; painel web e integração via `fetch`; testes de API (`tests/test_api.py`) | Capturas de tela, evidências Postman e revisão do script SQL |
+| Integrante | Banco de Dados II | Desenvolvimento Web III | Documentação e entrega |
+|------------|-------------------|-------------------------|------------------------|
+| **Jhennyfér** | Modelagem e normalização; `01_schema.sql`; CHECK/FK/UNIQUE, triggers e índices; views com JOIN (`02_views.sql`) e funções de relatório | Apoio a `app/db.py` e às chamadas de procedures; tabela de endpoints e coleção Postman | Comentários coluna a coluna, constraints e views; PDF final e ZIP |
+| **João Vitor** | Stored procedures (`03_procedures.sql`) e seed (`04_seed.sql`) | API Flask, blueprints, validações e erros; painel web e integração via `fetch` | Capturas de tela, evidências Postman e revisão do script SQL |
 
 > Cada entrega é revisada pelo outro integrante (duplo check).
 

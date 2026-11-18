@@ -70,8 +70,8 @@ def _config_por_ambiente():
     o padrao antigo do Flask. Sem nenhuma das duas, usa desenvolvimento.
 
     Isso permite que o MESMO codigo rode local (``python app.py``) e no servidor
-    (``gunicorn run:app``), bastando definir ``APP_ENV=production`` no painel da
-    hospedagem - sem duplicar ponto de entrada nem arquivo de configuracao.
+    bastando definir ``APP_ENV=production`` - sem duplicar ponto de entrada
+    nem arquivo de configuracao.
     """
     ambiente = (
         os.getenv("APP_ENV") or os.getenv("FLASK_ENV") or "development"

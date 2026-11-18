@@ -9,9 +9,7 @@ PROPOSITO
 Verificar, em uma unica chamada, se a API esta no ar e se consegue falar com
 o PostgreSQL. E usada por:
   * painel web (indicador "API online");
-  * Postman/monitoramento;
-  * plataformas de deploy (Render, Railway, Fly.io) para saber se o servico
-    esta saudavel.
+  * Postman/monitoramento.
 
 POR QUE CONSULTAR O BANCO AQUI
 ------------------------------

@@ -257,6 +257,8 @@ function openPatientModal(paciente = null) {
 async function submitPatient(event) {
     event.preventDefault();
     const form = event.target;
+    // Valida no front-end (required, minlength, e-mail, data) antes de chamar a API.
+    if (!form.reportValidity()) return;
     const id = form.id_paciente.value;
     const cpfDigits = form.cpf.value.replace(/\D/g, "");
 
@@ -417,6 +419,8 @@ async function openConsultationModal(consulta = null) {
 async function submitConsultation(event) {
     event.preventDefault();
     const form = event.target;
+    // Valida no front-end (campos obrigatorios, data/hora e limites) antes da API.
+    if (!form.reportValidity()) return;
     const id = form.id_consulta.value;
 
     const payload = {
@@ -522,6 +526,8 @@ function openPsychologistModal(psicologo = null) {
 async function submitPsychologist(event) {
     event.preventDefault();
     const form = event.target;
+    // Valida no front-end (campos obrigatorios, e-mail e valor) antes da API.
+    if (!form.reportValidity()) return;
     const id = form.id_psicologo.value;
 
     const payload = {

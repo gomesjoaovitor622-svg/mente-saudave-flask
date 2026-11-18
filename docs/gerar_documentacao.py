@@ -153,7 +153,6 @@ def build_diagram() -> Path:
         "Stored procedures via psycopg2",
         "Erros padronizados em JSON",
         "Configuração centralizada (.env)",
-        "Testes automatizados (pytest)",
     ]
     y = 320
     for item in api_items:
@@ -359,21 +358,6 @@ def _bullets(items, styles):
         bulletFontSize=8,
         spaceAfter=4,
     )
-
-
-def _public_url() -> str:
-    """Le a URL publica da demonstracao, se o tunel ja tiver sido iniciado.
-
-    O script que sobe o Cloudflare grava o endereco em docs/URL_PUBLICA.txt.
-    Quando o arquivo nao existe (execucao offline), devolve um placeholder
-    explicito para que a documentacao nunca exiba um link quebrado.
-    """
-    path = BASE / "URL_PUBLICA.txt"
-    if path.exists():
-        url = path.read_text(encoding="utf-8").strip()
-        if url:
-            return url
-    return "https://&lt;subdominio&gt;.trycloudflare.com (link temporario)"
 
 
 class DocComSumario(SimpleDocTemplate):
@@ -635,13 +619,13 @@ def build_pdf():
 │   ├── static/          # CSS e JavaScript do painel
 │   └── templates/       # index.html (painel web)
 ├── database/            # 00_create_database, 01_schema, 02_views, 03_procedures, 04_seed
-├── docs/                # PDF, relatório de testes, gerador e imagens
+├── docs/                # PDF, gerador da documentação e imagens
 ├── postman/             # coleção da API
-├── scripts/             # relatório de testes, geração e verificação do ZIP
-├── tests/               # validadores, API e integridade do banco
-├── app.py               # ponto de entrada oficial
-├── run.py               # compatibilidade (delega para app.py)
+├── scripts/             # geração do ZIP de entrega
+├── .env.example         # modelo das variáveis de ambiente
+├── app.py               # ponto de entrada da aplicação
 ├── requirements.txt
+├── requirements-dev.txt # dependências para gerar o PDF
 └── README.md"""
     story.append(
         XPreformatted(
@@ -911,12 +895,11 @@ COMMIT;"""
     story.append(_p("8. Testes e evidências", styles["h1"]))
     story.append(
         _p(
-            "A validação do sistema foi feita em três frentes complementares: "
-            "(i) capturas do painel web; (ii) execução real dos endpoints com "
-            "evidências no estilo Postman; e (iii) suíte automatizada com pytest. "
-            "O relatório completo, com o payload, o status HTTP e o efeito no banco "
-            "de cada requisição, está em "
-            "<font name='Courier'>docs/RELATORIO_DE_TESTES.md</font>.",
+            "A validação do sistema foi feita em duas frentes complementares: "
+            "(i) capturas do painel web; e (ii) execução real dos endpoints, com "
+            "evidências de payload, status HTTP e efeito no banco. As figuras a "
+            "seguir documentam as operações principais e podem ser reproduzidas "
+            "pela coleção do Postman incluída no projeto.",
             styles["body"],
         )
     )
@@ -951,11 +934,10 @@ COMMIT;"""
     story.append(_p("8.2 Evidências dos testes da API", styles["h2"]))
     story.append(
         _p(
-            "As figuras a seguir reproduzem as requisições reais executadas por "
-            "<font name='Courier'>scripts/relatorio_testes.py</font> contra a API "
-            "em execução. Cada cartão mostra o método, a URL, o corpo JSON enviado, "
-            "o status HTTP e o JSON devolvido, além da verificação feita diretamente "
-            "no PostgreSQL.",
+            "As figuras a seguir registram as requisições reais executadas contra "
+            "a API em execução, no mesmo formato de evidência do Postman. Cada "
+            "cartão mostra o método, a URL, o corpo JSON enviado, o status HTTP e "
+            "o JSON devolvido, além da verificação feita diretamente no PostgreSQL.",
             styles["body"],
         )
     )
@@ -1022,48 +1004,14 @@ COMMIT;"""
         max_height=13.5 * cm,
     )
 
-    # --------------------- 8.3 Testes automatizados -----------------------
-    story.append(_p("8.3 Testes automatizados", styles["h2"]))
-    story.append(
-        _p(
-            "A suíte automatizada reúne <b>56 testes</b> distribuídos em "
-            "<font name='Courier'>tests/test_validators.py</font> (validações "
-            "unitárias), <font name='Courier'>tests/test_api.py</font> (integração "
-            "dos endpoints) e <font name='Courier'>tests/test_constraints.py</font> "
-            "(integridade do banco: CHECK, UNIQUE, FK, CASCADE, índice parcial, "
-            "triggers, procedures, views e funções).",
-            styles["body"],
-        )
-    )
-    story.append(
-        XPreformatted(
-            "$ pytest -q\n"
-            ".......................................................  [100%]\n"
-            "56 passed in 5.66s",
-            ParagraphStyle(
-                "Code3",
-                fontName="Courier",
-                fontSize=8,
-                leading=11,
-                textColor=colors.HexColor("#334155"),
-                backColor=colors.HexColor("#f8fafc"),
-                borderColor=LINE,
-                borderWidth=0.5,
-                borderPadding=7,
-                spaceAfter=10,
-            ),
-        )
-    )
-
-    # ---------------------- 8.4 Resumo dos resultados ---------------------
-    story.append(_p("8.4 Resumo dos resultados", styles["h2"]))
+    # ---------------------- 8.3 Resumo dos resultados ---------------------
+    story.append(_p("8.3 Resumo dos resultados", styles["h2"]))
     story.append(
         _table(
             [
                 ["Verificação", "Resultado"],
                 ["Testes HTTP executados contra a API real", "22 de 22 com o status esperado"],
                 ["CHECK constraints testadas por SQL direto", "8 de 8 rejeitaram o dado inválido"],
-                ["Suíte automatizada (pytest)", "56 testes aprovados"],
                 ["Cobertura funcional", "CRUD, listagens, stored procedures, views e relatórios"],
                 ["Efeito no banco", "Conferido por consulta direta após cada operação"],
             ],
@@ -1086,18 +1034,18 @@ COMMIT;"""
     story.append(
         _table(
             [
-                ["Integrante", "Banco de Dados II", "Desenvolvimento Web III", "Documentação e testes", "Revisão"],
+                ["Integrante", "Banco de Dados II", "Desenvolvimento Web III", "Documentação e entrega", "Revisão"],
                 [
                     "Jhennyfér",
                     "Modelagem e normalização; 01_schema.sql; CHECK/FK/UNIQUE, triggers e índices; views com JOIN (02_views.sql) e funções de relatório",
                     "Apoio à camada de acesso (app/db.py) e às chamadas de procedures; tabela de endpoints e coleção do Postman",
-                    "Comentários coluna a coluna, constraints e views; relatório de testes; PDF final e ZIP",
+                    "Comentários coluna a coluna, constraints e views; PDF final e ZIP",
                     "João Vitor",
                 ],
                 [
                     "João Vitor",
-                    "Stored procedures (03_procedures.sql) e dados de exemplo (04_seed.sql); testes de integridade (tests/test_constraints.py)",
-                    "API Flask, blueprints, validações e tratamento de erros; painel web e integração via fetch; testes de API (tests/test_api.py)",
+                    "Stored procedures (03_procedures.sql) e dados de exemplo (04_seed.sql)",
+                    "API Flask, blueprints, validações e tratamento de erros; painel web e integração via fetch",
                     "Capturas de tela, evidências Postman e revisão do script SQL",
                     "Jhennyfér",
                 ],
@@ -1109,24 +1057,24 @@ COMMIT;"""
     story.append(Spacer(1, 0.3 * cm))
 
     # ---------------------------- 10. Execucao ----------------------------
-    story.append(_p("10. Como executar e link de acesso", styles["h1"]))
+    story.append(_p("10. Como executar", styles["h1"]))
     story.append(
         _bullets(
             [
-                "No VS Code, abrir a pasta e executar uma única vez a tarefa <b>Projeto: primeiro uso</b>: ela cria o <font name='Courier'>.venv</font>, instala as dependências, cria o banco PostgreSQL do projeto na porta 5432 e gera o <font name='Courier'>.env</font>.",
-                "Pressionar <b>F5</b> (configuração <b>API: depurar (Flask)</b>) ou executar a tarefa <b>API: executar</b>; o VS Code sobe o banco e o Flask juntos.",
-                "Alternativamente, executar manualmente os scripts 00 a 04 da pasta <font name='Courier'>database/</font>, copiar <font name='Courier'>.env.example</font> para <font name='Courier'>.env</font> e rodar <font name='Courier'>python app.py</font>.",
-                "Acessar <font name='Courier'>http://localhost:5000</font> e a lista de endpoints em <font name='Courier'>http://localhost:5000/api</font>.",
-                "Disparar requisições pelo arquivo <font name='Courier'>api.http</font> (extensão REST Client) ou pela coleção do Postman.",
+                "Pré-requisitos: Python 3.10 ou superior e PostgreSQL 14 ou superior em execução.",
+                "Criar o ambiente virtual e instalar as dependências: <font name='Courier'>python -m venv .venv</font>, ativar o ambiente e rodar <font name='Courier'>pip install -r requirements.txt</font>.",
+                "Copiar <font name='Courier'>.env.example</font> para <font name='Courier'>.env</font> e preencher <font name='Courier'>DB_HOST</font>, <font name='Courier'>DB_PORT</font>, <font name='Courier'>DB_NAME</font>, <font name='Courier'>DB_USER</font> e <font name='Courier'>DB_PASSWORD</font>.",
+                "Executar os scripts 00 a 04 da pasta <font name='Courier'>database/</font> no PostgreSQL (psql ou pgAdmin).",
+                "Iniciar a aplicação com <font name='Courier'>python app.py</font> e acessar <font name='Courier'>http://localhost:5000</font>; a lista de endpoints fica em <font name='Courier'>/api</font>.",
+                "Testar as requisições pela coleção <font name='Courier'>postman/mente-saudavel.postman_collection.json</font>.",
             ],
             styles,
         )
     )
     story.append(
         _p(
-            "O arquivo <font name='Courier'>app.py</font> é o ponto de entrada oficial; "
-            "<font name='Courier'>run.py</font> existe apenas por compatibilidade. "
-            "As instruções completas, incluindo testes e Postman, estão no "
+            "O arquivo <font name='Courier'>app.py</font> é o ponto de entrada da "
+            "aplicação. As instruções completas estão no "
             "<font name='Courier'>README.md</font> do repositório.",
             styles["body"],
         )
@@ -1138,18 +1086,9 @@ COMMIT;"""
                 ["Local (desenvolvimento)", "http://localhost:5000"],
                 ["Índice de endpoints", "http://localhost:5000/api"],
                 ["API / health check", "http://localhost:5000/api/health"],
-                ["Demonstração pública", _public_url()],
             ],
             [5.2 * cm, 11.4 * cm],
             styles,
-        )
-    )
-    story.append(
-        _p(
-            "O link público é temporário: ele permanece ativo enquanto o servidor "
-            "Flask, o PostgreSQL e o túnel Cloudflare estiverem em execução na "
-            "máquina de demonstração.",
-            styles["caption"],
         )
     )
 
@@ -1188,16 +1127,14 @@ COMMIT;"""
             "Para esta entrega, o pacote é "
             "<font name='Courier'>Jhennyfer_Joao.Mente_Saudavel.zip</font>. "
             "O script <font name='Courier'>scripts/gerar_zip.py</font> monta o pacote "
-            "automaticamente e valida o nome:",
+            "automaticamente:",
             styles["body"],
         )
     )
     story.append(
         XPreformatted(
             "python scripts/gerar_zip.py --membros \"Jhennyfer Joao\" --saida entrega\n"
-            "# gera: entrega/Jhennyfer_Joao.Mente_Saudavel.zip\n"
-            "python scripts/verificar_entrega.py\n"
-            "# confere PDF, ZIP, nomes e estrutura",
+            "# gera: entrega/Jhennyfer_Joao.Mente_Saudavel.zip",
             ParagraphStyle(
                 "Code5",
                 fontName="Courier",
@@ -1217,11 +1154,11 @@ COMMIT;"""
             [
                 ["Incluir no ZIP", "Excluir do ZIP"],
                 [
-                    "app/, database/, docs/, postman/, scripts/, tests/, .vscode/",
-                    ".venv/, .git/, __pycache__/, .pytest_cache/",
+                    "app/, database/, docs/, postman/, scripts/",
+                    ".venv/, .git/, __pycache__/",
                 ],
                 [
-                    "app.py, run.py, api.http, requirements.txt, requirements-dev.txt",
+                    "app.py, requirements.txt, requirements-dev.txt",
                     ".env (contém senhas), *.pyc, *.zip, arquivos temporários",
                 ],
                 [

@@ -15,7 +15,7 @@ Git), cada ambiente informa suas proprias credenciais.
 CLASSES DE CONFIGURACAO
 -----------------------
 * ``Config``          -> desenvolvimento local (valores padrao seguros).
-* ``TestingConfig``   -> pytest, aponta para ``mente_saudavel_test``.
+* ``TestingConfig``   -> ambiente de testes, banco separado.
 * ``ProductionConfig``-> sem debug e com ``SECRET_KEY`` obrigatoria.
 ============================================================================
 """
@@ -98,9 +98,8 @@ class Config:
         ``port``...) evita concatenar strings de conexao e previne erros de
         escaping com senhas que contenham caracteres especiais.
 
-        Se ``DATABASE_URL`` estiver definida (padrao em hospedagens como Render,
-        Railway e Heroku), ela tem prioridade: e uma unica string que ja traz
-        host, porta, usuario, senha, banco e ``sslmode``. Assim, o mesmo codigo
+        Se ``DATABASE_URL`` estiver definida, ela tem prioridade: e uma unica
+        string que ja traz host, porta, usuario, senha, banco e ``sslmode``. Assim, o mesmo codigo
         funciona local e na nuvem sem precisar remontar as partes.
         """
         dsn = os.getenv("DATABASE_URL")

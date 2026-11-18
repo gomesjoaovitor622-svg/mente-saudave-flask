@@ -11,11 +11,9 @@ COMO EXECUTAR
     PORT=8080 python app.py       # troca a porta
     FLASK_DEBUG=1 python app.py   # habilita recarga automatica
 
-O arquivo ``run.py`` existe apenas por compatibilidade e chama este mesmo
-ponto de entrada. Toda a logica de criacao da aplicacao esta em
-``app/__init__.py`` (padrao Application Factory), o que permite instanciar a
-API com configuracoes diferentes (desenvolvimento, testes e producao) sem
-alterar o codigo.
+Toda a logica de criacao da aplicacao esta em ``app/__init__.py`` (padrao
+Application Factory), o que permite instanciar a API com configuracoes
+diferentes (desenvolvimento e producao) sem alterar o codigo.
 
 POR QUE APPLICATION FACTORY?
 -----------------------------
@@ -51,19 +49,16 @@ import os
 # serializacao JSON e CORS. Importar daqui mantem um unico ponto de verdade.
 from app import create_app
 
-# Instancia usada pelo servidor WSGI (``flask --app app run``, gunicorn etc.).
-# O padrao ``application`` tambem e reconhecido por hospedagens como Render.
+# Instancia usada pelo servidor WSGI (``flask --app app run``).
+# O alias ``application`` tambem e reconhecido por servidores WSGI.
 app = create_app()
 application = app
 
 
 if __name__ == "__main__":
-    # ``host=0.0.0.0`` permite acesso externo (necessario para o tunel de
-    # demonstracao e para testar a API a partir de outro dispositivo).
+    # ``host=0.0.0.0`` permite acesso pela rede local.
     #
-    # ``debug`` vem da configuracao (``Config``/``ProductionConfig`` ja leram
-    # ``FLASK_DEBUG``): assim existe uma unica fonte de verdade e producao
-    # nunca liga o console do Werkzeug por causa de um ``.env`` esquecido.
+    # ``debug`` vem da configuracao (``Config`` ja leu ``FLASK_DEBUG``):
     app.run(
         host="0.0.0.0",
         port=int(os.getenv("PORT", "5000")),
