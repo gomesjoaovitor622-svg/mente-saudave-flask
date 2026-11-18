@@ -59,6 +59,8 @@ EXCLUDED_PATTERNS = (
     ".DS_Store",
     # Relatorio interno de aderencia: nao faz parte do pacote entregue.
     "RELATORIO-ADERENCIA-ATIVIDADE.md",
+    # Guia local com a senha do banco: nunca vai para o ZIP.
+    "COMO-USAR.md",
 )
 
 

@@ -45,7 +45,7 @@ validação no back-end.
 ```text
 mente-saudave-flask/
 ├── app/
-│   ├── __init__.py          # factory da aplicação Flask (CORS, JSON, erros)
+│   ├── __init__.py          # factory da aplicação Flask (JSON, erros)
 │   ├── config.py            # configurações centralizadas (.env)
 │   ├── db.py                # conexão e helpers de acesso ao PostgreSQL
 │   ├── errors.py            # tratamento de erros em JSON
@@ -118,14 +118,12 @@ cp .env.example .env      # Linux/macOS
 Edite o `.env` com os dados do seu PostgreSQL:
 
 ```env
-APP_ENV=development
-SECRET_KEY=troque-esta-chave
+FLASK_DEBUG=1
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=mente_saudavel
 DB_USER=postgres
 DB_PASSWORD=sua_senha
-CORS_ORIGINS=*
 ```
 
 ### 4. Criar e popular o banco

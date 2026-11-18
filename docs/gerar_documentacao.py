@@ -882,7 +882,6 @@ COMMIT;"""
                 "<b>Consultas parametrizadas:</b> todos os valores passam por <font name='Courier'>%s</font> no psycopg2, eliminando SQL injection; o nome da procedure é constante no código.",
                 "<b>Validação em três camadas:</b> front-end, API (CPF, e-mail, datas, enums) e banco (CHECK, UNIQUE, FK e triggers).",
                 "<b>Erros sem vazamento:</b> detalhes técnicos do PostgreSQL vão para o log; o cliente recebe JSON padronizado com status semântico.",
-                "<b>CORS e preflight:</b> o painel e o Postman podem consumir a API de outra origem; <font name='Courier'>OPTIONS</font> responde 204.",
                 "<b>Conexão por requisição:</b> uma conexão por request em <font name='Courier'>flask.g</font>, fechada no <font name='Courier'>teardown</font>, evitando vazamento.",
                 "<b>Integridade no banco:</b> constraints, índice único parcial e triggers garantem as regras mesmo fora da API.",
             ],

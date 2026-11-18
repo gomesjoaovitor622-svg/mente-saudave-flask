@@ -12,22 +12,21 @@ COMO EXECUTAR
     FLASK_DEBUG=1 python app.py   # habilita recarga automatica
 
 Toda a logica de criacao da aplicacao esta em ``app/__init__.py`` (padrao
-Application Factory), o que permite instanciar a API com configuracoes
-diferentes (desenvolvimento e producao) sem alterar o codigo.
+Application Factory), o que permite instanciar a API sem espalhar codigo de
+configuracao pelos modulos.
 
 POR QUE APPLICATION FACTORY?
------------------------------
-* Evita variaveis globais: cada instancia recebe sua propria configuracao.
-* Facilita os testes automatizados (``create_app(TestingConfig)``).
-* Permite criar varias instancias no mesmo processo (ex.: testes paralelos).
+----------------------------
+* Evita variaveis globais: a configuracao fica em um unico ponto.
+* Facilita a criacao de instancias em contextos diferentes (execucao normal,
+  scripts de manutencao e ferramentas de teste).
 
 POR QUE VARIAVEIS DE AMBIENTE?
 ------------------------------
 Credenciais de banco nunca devem ficar no codigo-fonte. ``app/config.py`` le
-``DB_HOST``, ``DB_PORT``, ``DB_NAME``, ``DB_USER``, ``DB_PASSWORD`` e
-``SECRET_KEY`` do ambiente (ou do arquivo ``.env``), seguindo a boa pratica
-de configuracao em doze fatores. Em producao, ``ProductionConfig`` exige que
-``SECRET_KEY`` seja definida explicitamente.
+``DB_HOST``, ``DB_PORT``, ``DB_NAME``, ``DB_USER`` e ``DB_PASSWORD`` do
+ambiente (ou do arquivo ``.env``), seguindo a boa pratica de configuracao
+centralizada exigida pela atividade.
 
 ESTRUTURA DE ROTAS (blueprints)
 -------------------------------
@@ -45,8 +44,8 @@ from __future__ import annotations
 
 import os
 
-# ``create_app`` e a fabrica que registra blueprints, tratamento de erros,
-# serializacao JSON e CORS. Importar daqui mantem um unico ponto de verdade.
+# ``create_app`` e a fabrica que registra blueprints, tratamento de erros e
+# serializacao JSON. Importar daqui mantem um unico ponto de verdade.
 from app import create_app
 
 # Instancia usada pelo servidor WSGI (``flask --app app run``).
